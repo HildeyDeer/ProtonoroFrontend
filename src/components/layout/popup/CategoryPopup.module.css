@@ -1,0 +1,221 @@
+.categoryPopup {
+  position: fixed;
+  z-index: 1000;
+  background: var(--bg-primary);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  width: 320px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popupFadeIn 0.2s ease;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.popupHeader {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.popupCategoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.popupCategoryTitle h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.categoryColorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.popupStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.taskCount {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.completedCount {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.popupTasks {
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: 350px;
+  flex: 1;
+}
+
+.popupTask {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--bg-tertiary);
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.popupTask:last-child {
+  margin-bottom: 0;
+}
+
+.popupTask:hover {
+  background: var(--border-color);
+}
+
+.popupTaskHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.popupTaskStatus {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-tertiary);
+}
+
+.popupTaskStatus.completed {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.popupTaskTitle {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popupTaskTime {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.popupTaskProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.popupProgressBar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.popupProgressFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.popupProgressText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 32px;
+}
+
+.popupFooter {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.popupDragBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.popupDragBtn:hover {
+  background: #2563eb;
+}
+
+.popupTasks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.popupTasks::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+.popupTasks::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 3px;
+}
+
+.popupTasks::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .categoryPopup {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 320px;
+    z-index: 1001;
+  }
+  
+  .popupTasks {
+    max-height: 300px;
+  }
+}

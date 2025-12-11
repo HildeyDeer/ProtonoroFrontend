@@ -1,0 +1,101 @@
+.timerSection {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 1rem;
+  padding: 2rem;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.timerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.timerHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.timerDisplay {
+  text-align: right;
+}
+
+.timerValue {
+  font-size: 3.5rem;
+  font-weight: 700;
+  display: block;
+  line-height: 1;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.timerLabel {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerControls {
+  display: flex;
+  gap: 1rem;
+}
+
+.timerBtn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  background: transparent;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.timerBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.timerBtn:active {
+  transform: translateY(0);
+}
+
+.timerBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.timerBtn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.timerBtn.reset {
+  flex: 0.5;
+}
+
+@media (max-width: 768px) {
+  .timerHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .timerDisplay {
+    text-align: left;
+  }
+  
+  .timerValue {
+    font-size: 2.5rem;
+  }
+}
