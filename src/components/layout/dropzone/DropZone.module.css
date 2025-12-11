@@ -1,0 +1,298 @@
+.dropZone {
+  min-height: 400px;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.dropZone.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+}
+
+.dropZone.dragOver {
+  border-color: var(--primary-color);
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateY(-2px);
+}
+
+.dropPlaceholder {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.dropIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.dropPlaceholder h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.dropPlaceholder p {
+  color: var(--text-tertiary);
+}
+
+.droppedCategoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.categoryColumn {
+  background: var(--bg-tertiary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.categoryTitle h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.categoryColorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.removeCategory {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+}
+
+.removeCategory:hover {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.categoryTasks {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.taskCard {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.taskCard:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.taskCard.completed {
+  opacity: 0.7;
+  background: var(--bg-tertiary);
+}
+
+.taskCard.completed:hover {
+  transform: none;
+}
+
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.taskDate {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.taskActions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.taskTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.taskDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.taskMeta {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.progressCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary-color) calc(var(--progress, 0) * 3.6deg),
+    var(--border-color) 0deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progressCircle::before {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+}
+
+.progressCircle span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.taskProgress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.progressText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+}
+
+.taskFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.statusBtn:hover {
+  background: var(--border-color);
+  transform: translateY(-1px);
+}
+
+.statusBtn.completed {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.statusBtn.completed:hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+@media (max-width: 768px) {
+  .droppedCategoriesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dropZone {
+    padding: 1rem;
+  }
+}
