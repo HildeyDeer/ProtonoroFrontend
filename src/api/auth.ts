@@ -42,4 +42,3 @@ export const setAuthUser = (access_token: string, refresh_token: string) : void 
     });
 }
 
-
