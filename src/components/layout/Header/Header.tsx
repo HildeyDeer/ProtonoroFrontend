@@ -65,24 +65,24 @@ const Header = ({
   };
 
   // Вариант 3: Кастомный формат (например: "Friday, September 27, 2024")
-  const updateCustomDate = () => {
-    const now = new Date();
-    const month = now.toLocaleString('default', { month: 'long' });
-    const year = now.getFullYear();
-    const day = now.getDate();
-    const weekday = now.toLocaleString('default', { weekday: 'long' });
-    setCurrentDate(`${weekday}, ${month} ${day}, ${year}`);
-  };
+  // const updateCustomDate = () => {
+  //   const now = new Date();
+  //   const month = now.toLocaleString('default', { month: 'long' });
+  //   const year = now.getFullYear();
+  //   const day = now.getDate();
+  //   const weekday = now.toLocaleString('default', { weekday: 'long' });
+  //   setCurrentDate(`${weekday}, ${month} ${day}, ${year}`);
+  // };
 
-  // Вариант 4: Для русского языка
-  const updateRussianDate = () => {
-    const now = new Date();
-    const month = now.toLocaleString('ru-RU', { month: 'long' });
-    const year = now.getFullYear();
-    // Первая буква заглавная
-    const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-    setCurrentDate(`${capitalizedMonth} ${year}`);
-  };
+  // // Вариант 4: Для русского языка
+  // const updateRussianDate = () => {
+  //   const now = new Date();
+  //   const month = now.toLocaleString('ru-RU', { month: 'long' });
+  //   const year = now.getFullYear();
+  //   // Первая буква заглавная
+  //   const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+  //   setCurrentDate(`${capitalizedMonth} ${year}`);
+  // };
 
   // Закрытие меню при клике вне его
   useEffect(() => {
