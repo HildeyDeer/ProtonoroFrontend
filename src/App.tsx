@@ -8,16 +8,23 @@ import CategoryModal from './components/layout/Modals/CategoryModal/CategoryModa
 import TaskModal from './components/layout/Modals/TaskModal/TaskModal';
 import ProfileModal from './components/layout/Modals/ProfileModal/ProfileModal';
 import Analytics from './components/layout/Analytics/Analytics';
-import type { Category, TimerState, DroppedCategory, Task } from './types';
+import Confetti from './components/layout/Confetti/Confetti'; // Импортируем компонент конфетти
+import type { Category, TimerState, TimerMode, DroppedCategory, Task } from './types';
 import './styles/App.css';
 
 const App = () => {
+
+  // Состояние для конфетти
+  const [showConfetti, setShowConfetti] = useState(false);
+
   // Темная тема
   const [darkMode, setDarkMode] = useState(false);
   
   // Таймер
-  const [time, setTime] = useState(25 * 60);
+  const [timerMode, setTimerMode] = useState<TimerMode>('pomodoro');
+  const [time, setTime] = useState(25 * 60); // 25 минут по умолчанию
   const [timerState, setTimerState] = useState<TimerState>('stopped');
+  const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const intervalRef = useRef<number | null>(null);
   
   // Drag and Drop
@@ -104,13 +111,14 @@ const App = () => {
     }
   }, [darkMode]);
 
-  // Логика таймера
+  // Логика таймера с автоматическим переключением режимов
   useEffect(() => {
     if (timerState === 'running') {
       intervalRef.current = window.setInterval(() => {
         setTime((prevTime) => {
           if (prevTime <= 1) {
-            setTimerState('stopped');
+            // Таймер завершился, переключаем режим
+            handleTimerComplete();
             return 0;
           }
           return prevTime - 1;
@@ -130,6 +138,108 @@ const App = () => {
     };
   }, [timerState]);
 
+  // Функция для запуска конфетти
+  const handleConfettiTrigger = () => {
+    setShowConfetti(true);
+    console.log('🎊 Confetti triggered! 🎊');
+    
+    // Автоматически скрываем конфетти через 3 секунды
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 3000);
+  };
+
+  // Функция для обработки завершения таймера
+  const handleTimerComplete = () => {
+    setTimerState('stopped');
+    
+    // Воспроизводим звук уведомления (опционально)
+    if (typeof window !== 'undefined' && window.Notification && Notification.permission === 'granted') {
+      new Notification('Timer Complete!', {
+        body: `${timerMode === 'pomodoro' ? 'Focus time is over!' : 'Break is over!'}`,
+        icon: '/favicon.ico'
+      });
+    }
+
+    // Автоматическое переключение режимов
+    if (timerMode === 'pomodoro') {
+      setCompletedPomodoros(prev => prev + 1);
+      
+      // После каждых 4 помодоро длинный перерыв, иначе короткий
+      if (completedPomodoros % 4 === 3) {
+        setTimeout(() => {
+          setTimerMode('longBreak');
+          setTime(15 * 60); // 15 минут
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          setTimerMode('shortBreak');
+          setTime(5 * 60); // 5 минут
+        }, 1000);
+      }
+    } else {
+      // После перерыва возвращаемся к работе
+      setTimeout(() => {
+        setTimerMode('pomodoro');
+        setTime(25 * 60); // 25 минут
+      }, 1000);
+    }
+  };
+
+  // Функция для изменения режима таймера с анимацией
+  const handleModeChange = (mode: TimerMode) => {
+    // Сначала останавливаем таймер
+    setTimerState('stopped');
+    
+    // Меняем режим
+    setTimerMode(mode);
+    
+    // Устанавливаем время в зависимости от режима
+    switch (mode) {
+      case 'pomodoro':
+        setTime(25 * 60); // 25 минут
+        break;
+      case 'shortBreak':
+        setTime(5 * 60); // 5 минут
+        break;
+      case 'longBreak':
+        setTime(15 * 60); // 15 минут
+        break;
+    }
+  };
+
+  // Обновленные функции управления таймером
+  const startTimer = () => {
+    if (time === 0) {
+      // Если время закончилось, сбрасываем таймер
+      resetTimer();
+    }
+    setTimerState('running');
+  };
+
+  const pauseTimer = () => setTimerState('paused');
+  
+  const resetTimer = () => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setTimerState('stopped');
+    
+    // Сбрасываем время в зависимости от текущего режима
+    switch (timerMode) {
+      case 'pomodoro':
+        setTime(25 * 60);
+        break;
+      case 'shortBreak':
+        setTime(5 * 60);
+        break;
+      case 'longBreak':
+        setTime(15 * 60);
+        break;
+    }
+  };
+
   // Обработка drag end
   useEffect(() => {
     const handleDragEnd = () => {
@@ -144,11 +254,14 @@ const App = () => {
     };
   }, []);
 
+  // Функция форматирования времени
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  
 
   // ========== ОБРАБОТЧИК АНАЛИТИКИ ==========
   const handleOpenAnalytics = () => {
@@ -478,17 +591,7 @@ const App = () => {
     ));
   };
 
-  // ========== ТАЙМЕР КОНТРОЛЫ ==========
-  const startTimer = () => setTimerState('running');
-  const pauseTimer = () => setTimerState('paused');
-  const resetTimer = () => {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setTimerState('stopped');
-    setTime(25 * 60);
-  };
+
 
   // ========== УДАЛЕНИЕ КАТЕГОРИИ ИЗ DROP ZONE ==========
   const removeDroppedCategory = (id: number) => {
@@ -503,6 +606,12 @@ const App = () => {
 
 return (
     <div className={`app ${darkMode ? 'dark' : ''}`}>
+      {/* Компонент конфетти */}
+      <Confetti 
+        isActive={showConfetti} 
+        onComplete={() => setShowConfetti(false)}
+      />
+
       <Header 
         darkMode={darkMode}
         onThemeToggle={() => setDarkMode(!darkMode)}
@@ -514,6 +623,7 @@ return (
         }}
         onProfileAction={handleProfileAction}
         profileData={profileData}
+        onConfettiTrigger={handleConfettiTrigger} // Передаем функцию в Header
       />
 
       <div className="main-layout">
@@ -545,9 +655,12 @@ return (
           <TimerSection 
             time={time}
             timerState={timerState}
+            mode={timerMode}
+            completedPomodoros={completedPomodoros}
             onStart={startTimer}
             onPause={pauseTimer}
             onReset={resetTimer}
+            onModeChange={handleModeChange}
             formatTime={formatTime}
           />
 

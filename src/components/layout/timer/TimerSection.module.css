@@ -1,69 +1,215 @@
 .timerSection {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1.5rem;
   color: white;
   margin-bottom: 2rem;
   box-shadow: var(--shadow-lg);
-}
-
-.timerHeader {
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Градиенты для разных режимов */
+.timerSection.pomodoro {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.timerSection.shortBreak {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.timerSection.longBreak {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.timerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Заголовок с режимами вверху */
+.timerHeader {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.timerModeSelector {
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-.timerHeader h3 {
-  font-size: 1.25rem;
+.timerModeSelector h3 {
+  font-size: 0.9rem;
   font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
+.modeButtons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modeBtn {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  min-width: 110px;
+  position: relative;
+  overflow: hidden;
+}
+
+.modeBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.modeBtn:hover::before {
+  left: 100%;
+}
+
+.modeBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modeBtn:active {
+  transform: translateY(0);
+}
+
+.modeBtn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Таймер по центру */
 .timerDisplay {
-  text-align: right;
+  text-align: center;
+  margin: 1rem 0;
 }
 
 .timerValue {
-  font-size: 3.5rem;
+  font-size: 3.75rem;
   font-weight: 700;
   display: block;
   line-height: 1;
   font-feature-settings: "tnum";
   font-variant-numeric: tabular-nums;
+  margin-bottom: 0.5rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .timerLabel {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   opacity: 0.9;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-top: 0.5rem;
 }
 
+.timerStats {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.timerStats span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+/* Увеличенные кнопки управления */
 .timerControls {
   display: flex;
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .timerBtn {
-  flex: 1;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.75rem;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.timerBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.timerBtn:hover::before {
+  left: 100%;
 }
 
 .timerBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .timerBtn:active {
@@ -73,29 +219,85 @@
 .timerBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
+}
+
+.timerBtn:disabled:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .timerBtn.active {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: white;
 }
 
-.timerBtn.reset {
-  flex: 0.5;
+/* Пульсация для активного таймера */
+@keyframes subtlePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
+  }
+}
+
+.timerBtn.active {
+  animation: subtlePulse 2s infinite;
+}
+
+/* Анимация цифр таймера */
+@keyframes subtleFlip {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.timerValue.changing {
+  animation: subtleFlip 0.3s ease;
 }
 
 @media (max-width: 768px) {
-  .timerHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .timerDisplay {
-    text-align: left;
+  .timerSection {
+    padding: 1.25rem;
+    min-height: 260px;
   }
   
   .timerValue {
-    font-size: 2.5rem;
+    font-size: 3rem;
+  }
+  
+  .modeButtons {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  
+  .modeBtn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .timerControls {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  
+  .timerBtn {
+    width: 100%;
+    min-width: auto;
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .timerStats {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

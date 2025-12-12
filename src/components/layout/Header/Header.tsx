@@ -14,6 +14,7 @@ interface HeaderProps {
     email: string;
     role: string;
   };
+  onConfettiTrigger?: () => void; // Добавляем пропс для запуска конфетти
 }
 
 const Header = ({ 
@@ -21,10 +22,14 @@ const Header = ({
   onThemeToggle, 
   searchQuery, 
   onSearchChange,
-  onNewTask 
+  onNewTask,
+  onConfettiTrigger
 }: HeaderProps) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
 
   // Закрытие меню при клике вне его
   useEffect(() => {
@@ -54,9 +59,13 @@ const Header = ({
         break;
       case 'settings':
         // Открыть настройки приложения
+        console.log('Open app settings');
+        alert('App settings will be implemented soon!');
         break;
       case 'help':
         // Открыть справку
+        console.log('Open help');
+        alert('Help & Support will be implemented soon!');
         break;
       case 'logout':
         // Выход из системы
@@ -68,10 +77,72 @@ const Header = ({
     }
   };
 
+  // Обработчик клика на логотип для пасхалки
+  const handleLogoClick = () => {
+    const currentTime = Date.now();
+    
+    // Сбрасываем счетчик, если прошло больше 3 секунд
+    if (currentTime - lastClickTime > 3000) {
+      setClickCount(1);
+    } else {
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+      
+      // Показываем подсказку при каждом клике
+      const messages = [
+        "Keep going!",
+        "Almost there!",
+        "One more click!",
+        "You're close!",
+        "🎉 Secret unlocked!"
+      ];
+      
+      if (newCount < 5) {
+        console.log(`Logo clicked ${newCount} times: ${messages[newCount - 1]}`);
+      }
+      
+      // При 5 кликах запускаем конфетти
+      if (newCount === 5) {
+        console.log("🎊 CONFETTI TIME! 🎊");
+        if (onConfettiTrigger) {
+          onConfettiTrigger();
+        }
+        
+        // Анимация логотипа
+        if (logoRef.current) {
+          logoRef.current.style.transform = 'scale(1.2)';
+          logoRef.current.style.transition = 'transform 0.3s ease';
+          
+          setTimeout(() => {
+            if (logoRef.current) {
+              logoRef.current.style.transform = 'scale(1)';
+            }
+          }, 300);
+        }
+        
+        // Сбрасываем счетчик через 2 секунды
+        setTimeout(() => {
+          setClickCount(0);
+        }, 2000);
+      }
+    }
+    
+    setLastClickTime(currentTime);
+  };
+
+  // Добавляем класс для анимации при нескольких кликах
+  const logoClass = clickCount > 0 ? `${styles.logo} ${styles.logoPulse}` : styles.logo;
+
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-        <div className={styles.logo}>
+        <div 
+          ref={logoRef}
+          className={logoClass} 
+          onClick={handleLogoClick}
+          title={clickCount > 0 ? `Clicked ${clickCount} times` : "Click me!"}
+          style={{ cursor: 'pointer' }}
+        >
           <Target className={styles.logoIcon} size={28} />
           <h1>Protonoro</h1>
         </div>

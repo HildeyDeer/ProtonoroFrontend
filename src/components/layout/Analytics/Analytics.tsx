@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, BarChart3, TrendingUp, Calendar, Target, CheckCircle, Clock, Award } from 'lucide-react';
 import styles from './Analytics.module.css';
-import type { Category, Task } from '../../../types';
+import type { Category } from '../../../types';
 
 interface AnalyticsProps {
   isOpen: boolean;
