@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import Header from './components/layout/Header/Header';
 import Sidebar from './components/layout/Sidebar/Sidebar';
-import TimerSection from './components/layout/timer/TimerSection';
-import DropZone from './components/layout/dropzone/DropZone';
-import CategoryPopup from './components/layout/popup/CategoryPopup';
-import type { Category, TimerState, DroppedCategory } from './types';
+import TimerSection from './components/layout/Timer/TimerSection';
+import DropZone from './components/layout/Dropzone/DropZone';
+import CategoryPopup from './components/layout/Modals/CategoryPopup/CategoryPopup';
+import CategoryModal from './components/layout/Modals/CategoryModal/CategoryModal';
+import TaskModal from './components/layout/Modals/TaskModal/TaskModal';
+import type { Category, TimerState, DroppedCategory, Task } from './types';
 import './styles/App.css';
 
 const App = () => {
@@ -21,6 +23,14 @@ const App = () => {
   const [droppedCategories, setDroppedCategories] = useState<DroppedCategory[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   
+  // Модальные окна
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  
+  // Редактирование
+  const [editingTask, setEditingTask] = useState<{ categoryId: number; task: Task } | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
   // Popup state
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
@@ -107,13 +117,27 @@ const App = () => {
     };
   }, [timerState]);
 
+  // Обработка drag end
+  useEffect(() => {
+    const handleDragEnd = () => {
+      setDraggedCategory(null);
+      setIsDragOver(false);
+    };
+
+    document.addEventListener('dragend', handleDragEnd);
+    
+    return () => {
+      document.removeEventListener('dragend', handleDragEnd);
+    };
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Drag and Drop handlers
+  // ========== ОБРАБОТЧИКИ DRAG & DROP ==========
   const handleDragStart = (category: Category, e: React.DragEvent) => {
     setDraggedCategory(category);
     setShowPopup(false);
@@ -159,15 +183,170 @@ const App = () => {
     setDraggedCategory(null);
   };
 
-  const removeDroppedCategory = (id: number) => {
-    setDroppedCategories(droppedCategories.filter(cat => cat.id !== id));
+  // ========== ОБРАБОТЧИКИ КАТЕГОРИЙ ==========
+  const handleCreateCategory = (categoryData: any) => {
+    const newCategory: Category = {
+      id: Date.now(),
+      tasks: [],
+      ...categoryData
+    };
+
+    setCategories(prev => [...prev, newCategory]);
+    setIsCategoryModalOpen(false);
   };
 
-  // Popup handlers
-  const handleMouseEnter = (category: Category, e: React.MouseEvent) => {
-    if (draggedCategory) {
-      return;
+  const handleEditCategory = (categoryData: any) => {
+    if (!editingCategory) return;
+
+    // Обновляем основную коллекцию категорий
+    setCategories(prevCategories => 
+      prevCategories.map(category => 
+        category.id === editingCategory.id
+          ? { ...category, ...categoryData }
+          : category
+      )
+    );
+
+    // Обновляем droppedCategories
+    setDroppedCategories(prev => 
+      prev.map(dc => 
+        dc.id === editingCategory.id
+          ? { ...dc, ...categoryData }
+          : dc
+      )
+    );
+
+    setIsCategoryModalOpen(false);
+    setEditingCategory(null);
+  };
+
+  const handleDeleteCategory = (categoryId: number) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
+
+    if (window.confirm(`Are you sure you want to delete category "${category.name}"? All ${category.tasks.length} tasks in this category will be permanently deleted.`)) {
+      setCategories(prev => prev.filter(c => c.id !== categoryId));
+      setDroppedCategories(prev => prev.filter(dc => dc.id !== categoryId));
     }
+  };
+
+  const handleEditCategoryClick = (categoryId: number) => {
+    // Находим категорию в основной коллекции или в droppedCategories
+    const category = categories.find(c => c.id === categoryId) || 
+                    droppedCategories.find(dc => dc.id === categoryId);
+    
+    if (category) {
+      setEditingCategory(category);
+      setIsCategoryModalOpen(true);
+    }
+  };
+
+  // ========== ОБРАБОТЧИКИ ЗАДАЧ ==========
+  const handleCreateTask = (taskData: any) => {
+    const newTask: Task = {
+      id: Date.now(),
+      ...taskData,
+      completed: false
+    };
+
+    const targetCategory = categories.find(c => c.name === taskData.category);
+    
+    if (targetCategory) {
+      setCategories(prevCategories => 
+        prevCategories.map(category => 
+          category.id === targetCategory.id
+            ? { ...category, tasks: [...category.tasks, newTask] }
+            : category
+        )
+      );
+
+      setDroppedCategories(prev => 
+        prev.map(dc => 
+          dc.id === targetCategory.id
+            ? { ...dc, tasks: [...dc.tasks, newTask] }
+            : dc
+        )
+      );
+    }
+    
+    setIsTaskModalOpen(false);
+  };
+
+  const handleEditTask = (taskData: any) => {
+    if (!editingTask) return;
+
+    setCategories(prevCategories => 
+      prevCategories.map(category => 
+        category.id === editingTask.categoryId
+          ? { 
+              ...category, 
+              tasks: category.tasks.map(task => 
+                task.id === editingTask.task.id 
+                  ? { ...task, ...taskData }
+                  : task
+              )
+            }
+          : category
+      )
+    );
+
+    setDroppedCategories(prev => 
+      prev.map(dc => 
+        dc.id === editingTask.categoryId
+          ? { 
+              ...dc, 
+              tasks: dc.tasks.map(task => 
+                task.id === editingTask.task.id 
+                  ? { ...task, ...taskData }
+                  : task
+              )
+            }
+          : dc
+      )
+    );
+
+    setIsTaskModalOpen(false);
+    setEditingTask(null);
+  };
+
+  const handleDeleteTask = (categoryId: number, taskId: number) => {
+    const task = categories
+      .find(c => c.id === categoryId)
+      ?.tasks.find(t => t.id === taskId);
+
+    if (!task) return;
+
+    if (window.confirm(`Are you sure you want to delete task "${task.title}"?`)) {
+      setCategories(prevCategories => 
+        prevCategories.map(category => 
+          category.id === categoryId
+            ? { ...category, tasks: category.tasks.filter(t => t.id !== taskId) }
+            : category
+        )
+      );
+
+      setDroppedCategories(prev => 
+        prev.map(dc => 
+          dc.id === categoryId
+            ? { ...dc, tasks: dc.tasks.filter(t => t.id !== taskId) }
+            : dc
+        )
+      );
+    }
+  };
+
+  const handleTaskAction = (categoryId: number, task: Task, action: 'edit' | 'delete') => {
+    if (action === 'edit') {
+      setEditingTask({ categoryId, task });
+      setIsTaskModalOpen(true);
+    } else if (action === 'delete') {
+      handleDeleteTask(categoryId, task.id);
+    }
+  };
+
+  // ========== ОБРАБОТЧИКИ POPUP ==========
+  const handleMouseEnter = (category: Category, e: React.MouseEvent) => {
+    if (draggedCategory) return;
     
     if (popupTimeoutRef.current) {
       window.clearTimeout(popupTimeoutRef.current);
@@ -198,20 +377,6 @@ const App = () => {
     }
   };
 
-  // Добавим обработчик для всего документа для отслеживания drag end
-  useEffect(() => {
-    const handleDragEnd = () => {
-      setDraggedCategory(null);
-      setIsDragOver(false);
-    };
-
-    document.addEventListener('dragend', handleDragEnd);
-    
-    return () => {
-      document.removeEventListener('dragend', handleDragEnd);
-    };
-  }, []);
-
   const handlePopupMouseEnter = () => {
     if (popupTimeoutRef.current) {
       window.clearTimeout(popupTimeoutRef.current);
@@ -222,9 +387,8 @@ const App = () => {
     handleMouseLeave();
   };
 
-  // Task completion toggle
+  // ========== ОБРАБОТЧИК ЗАВЕРШЕНИЯ ЗАДАЧ ==========
   const toggleTaskCompletion = (categoryId: number, taskId: number) => {
-    // Обновляем категории в сайдбаре
     setCategories(categories.map(category => 
       category.id === categoryId 
         ? {
@@ -236,7 +400,6 @@ const App = () => {
         : category
     ));
 
-    // Обновляем dropped категории
     setDroppedCategories(droppedCategories.map(category =>
       category.id === categoryId
         ? {
@@ -249,7 +412,7 @@ const App = () => {
     ));
   };
 
-  // Timer controls
+  // ========== ТАЙМЕР КОНТРОЛЫ ==========
   const startTimer = () => setTimerState('running');
   const pauseTimer = () => setTimerState('paused');
   const resetTimer = () => {
@@ -261,7 +424,12 @@ const App = () => {
     setTime(25 * 60);
   };
 
-  // Статистика
+  // ========== УДАЛЕНИЕ КАТЕГОРИИ ИЗ DROP ZONE ==========
+  const removeDroppedCategory = (id: number) => {
+    setDroppedCategories(droppedCategories.filter(cat => cat.id !== id));
+  };
+
+  // ========== СТАТИСТИКА ==========
   const totalTasks = categories.reduce((sum, cat) => sum + cat.tasks.length, 0);
   const allTasks = categories.flatMap(cat => cat.tasks);
   const completedTasks = allTasks.filter(t => t.completed).length;
@@ -274,7 +442,10 @@ const App = () => {
         onThemeToggle={() => setDarkMode(!darkMode)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onNewTask={() => console.log('New task')}
+        onNewTask={() => {
+          setEditingTask(null);
+          setIsTaskModalOpen(true);
+        }}
       />
 
       <div className="main-layout">
@@ -290,6 +461,10 @@ const App = () => {
           onDragStart={handleDragStart}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onAddCategory={() => {
+            setEditingCategory(null);
+            setIsCategoryModalOpen(true);
+          }}
           totalTasks={totalTasks}
           completedTasks={completedTasks}
           inProgressTasks={inProgressTasks}
@@ -314,8 +489,43 @@ const App = () => {
             onDrop={handleDrop}
             onRemoveCategory={removeDroppedCategory}
             onToggleTaskCompletion={toggleTaskCompletion}
+            onTaskAction={handleTaskAction}
+            onEditCategory={handleEditCategoryClick}
+            onDeleteCategory={handleDeleteCategory}
           />
 
+          {/* Модальное окно для задачи */}
+          <TaskModal
+            isOpen={isTaskModalOpen}
+            onClose={() => {
+              setIsTaskModalOpen(false);
+              setEditingTask(null);
+            }}
+            onSubmit={editingTask ? handleEditTask : handleCreateTask}
+            categories={categories}
+            initialData={editingTask ? editingTask.task : null}
+          />
+
+          {/* Модальное окно для категории */}
+          {isCategoryModalOpen && (
+            <CategoryModal
+              isOpen={isCategoryModalOpen}
+              onClose={() => {
+                setIsCategoryModalOpen(false);
+                setEditingCategory(null);
+              }}
+              onSubmit={(categoryData) => {
+                if (editingCategory) {
+                  handleEditCategory(categoryData);
+                } else {
+                  handleCreateCategory(categoryData);
+                }
+              }}
+              initialData={editingCategory}
+            />
+          )}
+
+          {/* Popup при наведении на категорию */}
           {showPopup && hoveredCategory && (
             <CategoryPopup 
               category={hoveredCategory}

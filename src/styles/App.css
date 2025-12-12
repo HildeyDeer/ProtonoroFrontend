@@ -116,6 +116,77 @@ body {
   position: relative;
 }
 
+/* Контекстное меню для категорий */
+.category-context-menu {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.category-context-menu button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.category-context-menu button:last-child {
+  border-bottom: none;
+}
+
+.category-context-menu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.category-context-menu button.delete-btn {
+  color: var(--danger-color);
+}
+
+.category-context-menu button.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Стили для кнопок действий в DropZone */
+.task-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  min-width: 140px;
+  z-index: 10;
+  margin-top: 0.25rem;
+}
+
+.task-menu button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task-menu button:hover {
+  background: var(--bg-tertiary);
+}
 .category-arrow {
   margin-left: 0.5rem;
   color: var(--text-tertiary);

@@ -1,6 +1,6 @@
-import { Target, BarChart3, CheckCircle, Clock, GripVertical, ChevronRight } from 'lucide-react';
+import { Target, BarChart3, CheckCircle, Clock, GripVertical, ChevronRight, Plus } from 'lucide-react';
 import styles from './Sidebar.module.css';
-import type { Category } from '../../../types/index';
+import type { Category } from '../../../types';
 
 interface SidebarProps {
   categories: Category[];
@@ -9,6 +9,7 @@ interface SidebarProps {
   onDragStart: (category: Category, e: React.DragEvent) => void;
   onMouseEnter: (category: Category, e: React.MouseEvent) => void;
   onMouseLeave: () => void;
+  onAddCategory: () => void;
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
@@ -21,6 +22,7 @@ const Sidebar = ({
   onDragStart,
   onMouseEnter,
   onMouseLeave,
+  onAddCategory,
   totalTasks,
   completedTasks,
   inProgressTasks
@@ -39,7 +41,16 @@ const Sidebar = ({
       </nav>
 
       <div className={styles.categoriesSection}>
-        <h3>Drag Categories to Main Area</h3>
+        <div className={styles.sectionHeader}>
+          <h3>Categories</h3>
+          <button 
+            className={styles.addCategoryButton}
+            onClick={onAddCategory}
+            title="Add new category"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
         <div className={styles.categoryFilters}>
           {categories.map(category => (
             <div 
