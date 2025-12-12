@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, BarChart3, TrendingUp, Calendar, Target, CheckCircle, Clock, Award } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, BarChart3, TrendingUp, Calendar, Target, CheckCircle, Clock, Award, Zap } from 'lucide-react';
 import styles from './Analytics.module.css';
 import type { Category } from '../../../types';
 
@@ -26,12 +26,28 @@ interface AnalyticsData {
 
 const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [hoveredHour, setHoveredHour] = useState<number | null>(null);
+  const [activeHour, setActiveHour] = useState<number | null>(null);
+  const [showAllHours, setShowAllHours] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && categories.length > 0) {
       calculateAnalytics();
     }
   }, [isOpen, categories]);
+
+  useEffect(() => {
+    if (analyticsData && chartRef.current) {
+      // Анимация появления баров
+      const bars = chartRef.current.querySelectorAll(`.${styles.timeBarFill}`);
+      bars.forEach((bar, index) => {
+        setTimeout(() => {
+          bar.classList.add(styles.animated);
+        }, index * 50);
+      });
+    }
+  }, [analyticsData]);
 
   const calculateAnalytics = () => {
     const allTasks = categories.flatMap(cat => cat.tasks);
@@ -59,12 +75,10 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
     });
 
     // Распределение по времени
-    const completionTimeDistribution = Object.entries(completionByHour)
-      .map(([hour, count]) => ({
-        hour: parseInt(hour),
-        count
-      }))
-      .sort((a, b) => a.hour - b.hour);
+    const completionTimeDistribution = Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      count: completionByHour[hour] || 0
+    }));
 
     // Пиковые часы продуктивности
     const peakHours = Object.entries(completionByHour)
@@ -97,8 +111,8 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
       return taskDate.toDateString() === yesterday.toDateString();
     });
 
-    const currentStreak = completedYesterday ? 7 : 3; // Примерные данные
-    const longestStreak = 14; // Примерные данные
+    const currentStreak = completedYesterday ? 7 : 3;
+    const longestStreak = 14;
 
     setAnalyticsData({
       totalTasks,
@@ -114,6 +128,67 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
         longest: longestStreak
       }
     });
+  };
+
+  const getCurrentHour = () => new Date().getHours();
+
+  const formatHourLabel = (hour: number) => {
+    if (hour === 0) return '12AM';
+    if (hour === 12) return '12PM';
+    return hour > 12 ? `${hour - 12}PM` : `${hour}AM`;
+  };
+
+  const getBarHeight = (count: number, maxCount: number) => {
+    if (maxCount === 0) return '4px';
+    const percentage = (count / maxCount) * 100;
+    return `${Math.max(percentage, 4)}%`;
+  };
+
+  const getBarBackground = (hour: number) => {
+    const currentHour = getCurrentHour();
+    if (hour === currentHour) {
+      return '#ef4444'; // красный для текущего часа
+    }
+    if (hour === hoveredHour || hour === activeHour) {
+      return '#8b5cf6'; // фиолетовый для активного/наведенного
+    }
+    return '#3b82f6'; // синий по умолчанию
+  };
+
+  const getBarGradient = (hour: number) => {
+    const baseColor = getBarBackground(hour);
+    const darkColor = getDarkenedColor(baseColor, 0.2);
+    
+    return `linear-gradient(180deg, ${baseColor}, ${darkColor})`;
+  };
+
+  const getDarkenedColor = (color: string, amount: number) => {
+    // Простая функция для затемнения цвета
+    if (color.startsWith('#')) {
+      const hex = color.slice(1);
+      const num = parseInt(hex, 16);
+      const r = Math.max(0, Math.min(255, ((num >> 16) & 0xFF) * (1 - amount)));
+      const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) * (1 - amount)));
+      const b = Math.max(0, Math.min(255, (num & 0xFF) * (1 - amount)));
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+    return color;
+  };
+
+  const handleBarClick = (hour: number) => {
+    if (activeHour === hour) {
+      setActiveHour(null);
+    } else {
+      setActiveHour(hour);
+    }
+  };
+
+  const handleBarHover = (hour: number) => {
+    setHoveredHour(hour);
+  };
+
+  const handleBarLeave = () => {
+    setHoveredHour(null);
   };
 
   if (!isOpen) return null;
@@ -212,30 +287,109 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
 
                 {/* График по времени */}
                 <div className={styles.chartCard}>
-                  <h3>Completion Time Distribution</h3>
-                  <div className={styles.timeChart}>
-                    {Array.from({ length: 24 }).map((_, hour) => {
-                      const hourData = analyticsData.completionTimeDistribution.find(h => h.hour === hour);
-                      const count = hourData?.count || 0;
-                      const height = Math.min(count * 20, 100); // Максимальная высота 100px
-                      
-                      return (
-                        <div key={hour} className={styles.timeBar}>
-                          <div 
-                            className={styles.timeBarFill}
-                            style={{ height: `${height}%` }}
-                            title={`${count} tasks at ${hour}:00`}
-                          />
-                          <span className={styles.hourLabel}>
-                            {hour === 0 ? '12AM' : hour === 12 ? '12PM' : hour > 12 ? `${hour-12}PM` : `${hour}AM`}
-                          </span>
-                        </div>
-                      );
-                    })}
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '1.5rem' 
+                  }}>
+                    <h3>Completion Time Distribution</h3>
+                    <button 
+                      onClick={() => setShowAllHours(!showAllHours)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--border-color)',
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-primary)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      {showAllHours ? 'Show Peak Hours' : 'Show All Hours'}
+                    </button>
                   </div>
+                  
+                  <div ref={chartRef} className={styles.timeChart}>
+                    {analyticsData.completionTimeDistribution
+                      .filter(data => showAllHours || data.count > 0)
+                      .map(({ hour, count }) => {
+                        const maxCount = Math.max(...analyticsData.completionTimeDistribution.map(d => d.count));
+                        const height = getBarHeight(count, maxCount);
+                        const isCurrentHour = hour === getCurrentHour();
+                        const isActive = hour === activeHour;
+                        const isHovered = hour === hoveredHour;
+                        
+                        return (
+                          <div 
+                            key={hour}
+                            className={`${styles.timeBar} ${isCurrentHour ? styles.current : ''} ${isActive ? styles.active : ''}`}
+                            onClick={() => handleBarClick(hour)}
+                            onMouseEnter={() => handleBarHover(hour)}
+                            onMouseLeave={handleBarLeave}
+                            style={{ 
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'flex-end'
+                            }}
+                          >
+                            <div 
+                              className={styles.timeBarTooltip}
+                              style={{ 
+                                opacity: isHovered || isActive ? 1 : 0,
+                                transform: `translateX(-50%) translateY(${isHovered || isActive ? 0 : '10px'})`
+                              }}
+                            >
+                              {count} task{count !== 1 ? 's' : ''} completed at {formatHourLabel(hour)}
+                            </div>
+                            
+                            <div 
+                              className={styles.timeBarFill}
+                              style={{ 
+                                height,
+                                background: getBarGradient(hour)
+                              }}
+                            />
+                            
+                            <span className={styles.hourLabel}>
+                              {formatHourLabel(hour)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  
+                  <div className={styles.timeLegend}>
+                    <div className={styles.legendItem}>
+                      <div className={styles.legendColor} style={{ backgroundColor: '#3b82f6' }} />
+                      <span>Completed Tasks</span>
+                    </div>
+                    <div className={styles.legendItem}>
+                      <div className={styles.legendColor} style={{ backgroundColor: '#ef4444' }} />
+                      <span>Current Hour ({getCurrentHour()}:00)</span>
+                    </div>
+                    <div className={styles.legendItem}>
+                      <Zap size={12} />
+                      <span>Peak: {analyticsData.peakProductivityHours.join(', ')}</span>
+                    </div>
+                  </div>
+                  
                   <div className={styles.peakHours}>
                     <Clock size={14} />
-                    <span>Peak productivity: {analyticsData.peakProductivityHours.join(', ')}</span>
+                    <span>Average completion time: {analyticsData.averageCompletionTime}</span>
+                    {activeHour !== null && (
+                      <span style={{ marginLeft: 'auto', color: 'var(--primary-color)', fontWeight: 500 }}>
+                        Selected: {formatHourLabel(activeHour)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

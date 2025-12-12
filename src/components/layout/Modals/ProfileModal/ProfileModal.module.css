@@ -1,41 +1,78 @@
+/* Стили для модального окна с темной темой */
+
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  animation: overlayFadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes overlayFadeIn {
+  from { 
+    opacity: 0;
+    backdrop-filter: blur(0) saturate(100%);
+    -webkit-backdrop-filter: blur(0) saturate(100%);
+  }
+  to { 
+    opacity: 1;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
 }
 
 .modal {
   background: var(--bg-primary);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   width: 100%;
-  max-width: 400px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.3s ease;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-@keyframes slideUp {
+/* Стилизация скроллбара */
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+@keyframes modalSlideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(40px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -43,49 +80,184 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1.75rem 2rem;
   border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .modalHeader h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .closeButton {
-  background: transparent;
-  border: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
   color: var(--text-tertiary);
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .closeButton:hover {
   background: var(--border-color);
   color: var(--text-primary);
+  transform: rotate(90deg);
 }
 
 .form {
-  padding: 1.5rem;
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Стилизация скроллбара внутри формы */
+.form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.form::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.form::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 .avatarSection {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.avatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+}
+
+/* Эффект "рыбьего глаза" */
+.avatarWithImage {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 
+    0 15px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 3px rgba(var(--primary-color-rgb, 59, 130, 246), 0.4);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  filter: brightness(1);
+}
+
+.avatarWithImage.fisheyeEffect {
+  transform: scale(1.15);
+  filter: brightness(1.1) contrast(1.1) saturate(1.2);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 4px rgba(var(--primary-color-rgb, 59, 130, 246), 0.6),
+    0 0 30px rgba(var(--primary-color-rgb, 59, 130, 246), 0.3);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.avatarWithImage.fisheyeEffect .avatarImage {
+  transform: scale(1.2);
+  filter: blur(1px) brightness(1.2);
+}
+
+.avatarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+.avatarWithImage.fisheyeEffect .avatarOverlay {
+  opacity: 1;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background: rgba(0, 0, 0, 0.7);
+  }
+  50% {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.removeAvatarIcon {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: iconPulse 2s infinite;
+}
+
+.removeAvatarIcon:hover {
+  background: white;
+  transform: scale(1.2) rotate(180deg);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .profileAvatarLarge {
-  width: 100px;
-  height: 100px;
+  width: 140px;
+  height: 140px;
   background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
   border-radius: 50%;
   display: flex;
@@ -93,46 +265,81 @@
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 3rem;
+  box-shadow: 
+    0 15px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 3px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profileAvatarLarge:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 4px rgba(255, 255, 255, 0.15);
+}
+
+.avatarInput {
+  display: none;
+}
+
+.avatarButtons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .changeAvatarBtn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 0.875rem;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 180px;
 }
 
 .changeAvatarBtn:hover {
-  background: var(--border-color);
-  color: var(--text-primary);
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+}
+
+.formGrid {
+  display: grid;
+  gap: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .formGroup {
-  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .formGroup label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
 }
 
 .formGroup input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 1rem 1.25rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.875rem;
+  font-size: 1rem;
   color: var(--text-primary);
   transition: all 0.2s;
 }
@@ -140,24 +347,102 @@
 .formGroup input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--bg-secondary);
+}
+
+.formGroup input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Темная тема для инпутов */
+@media (prefers-color-scheme: dark) {
+  .formGroup input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .formGroup input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-color);
+  }
+}
+
+.profilePageLink {
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-color-rgb, 59, 130, 246), 0.12) 0%,
+    rgba(var(--primary-color-rgb, 59, 130, 246), 0.06) 100%
+  );
+  border-radius: 1rem;
+  text-align: center;
+  border: 1px solid rgba(var(--primary-color-rgb, 59, 130, 246), 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.profilePageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 0.875rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.profilePageBtn:hover {
+  background: #2563eb;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+}
+
+.profilePageBtn:active {
+  transform: translateY(-1px);
+}
+
+.profilePageHint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.875rem;
+  position: relative;
+  z-index: 2;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
 .modalFooter {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding-top: 1.5rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--border-color);
+  margin-top: 1rem;
+  flex-shrink: 0;
 }
 
 .cancelButton {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 0.875rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s;
@@ -165,23 +450,169 @@
 
 .cancelButton:hover {
   background: var(--border-color);
+  transform: translateY(-2px);
 }
 
 .submitButton {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   background: var(--primary-color);
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 0.875rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: white;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
 .submitButton:hover {
   background: #2563eb;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .modal {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+    max-height: 90vh;
+    border-radius: 1rem;
+  }
+  
+  .modalHeader {
+    padding: 1.5rem;
+  }
+  
+  .form {
+    padding: 1.5rem;
+  }
+  
+  .avatarWithImage,
+  .profileAvatarLarge {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profileAvatarLarge {
+    font-size: 2.5rem;
+  }
+  
+  .avatarButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .changeAvatarBtn {
+    width: 100%;
+    min-width: auto;
+    justify-content: center;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* Поддержка темной темы */
+:global(.dark-mode) .modal {
+  background: var(--bg-secondary);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+:global(.dark-mode) .modalHeader {
+  background: var(--bg-secondary);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .closeButton {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-tertiary);
+}
+
+:global(.dark-mode) .closeButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+:global(.dark-mode) .formGroup input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+:global(.dark-mode) .formGroup input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:global(.dark-mode) .cancelButton {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .cancelButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .profilePageLink {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-color-rgb, 59, 130, 246), 0.15) 0%,
+    rgba(var(--primary-color-rgb, 59, 130, 246), 0.08) 100%
+  );
+  border-color: rgba(var(--primary-color-rgb, 59, 130, 246), 0.25);
+}
+
+/* Стилизация скроллбара для темной темы */
+:global(.dark-mode) .modal::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+:global(.dark-mode) .form::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .form::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Эффект "рыбьего глаза" для темной темы */
+:global(.dark-mode) .avatarWithImage.fisheyeEffect {
+  filter: brightness(1.2) contrast(1.1) saturate(1.3);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 4px rgba(var(--primary-color-rgb, 59, 130, 246), 0.7),
+    0 0 40px rgba(var(--primary-color-rgb, 59, 130, 246), 0.4);
+}
+
+:global(.dark-mode) .removeAvatarIcon {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+:global(.dark-mode) .removeAvatarIcon:hover {
+  background: white;
 }

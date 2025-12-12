@@ -9,12 +9,13 @@ interface HeaderProps {
   onSearchChange: (value: string) => void;
   onNewTask: () => void;
   onProfileAction: (action: string) => void;
+  onConfettiTrigger?: () => void;
   profileData?: {
     name: string;
     email: string;
     role: string;
+    avatar?: string | null;
   };
-  onConfettiTrigger?: () => void; // Добавляем пропс для запуска конфетти
 }
 
 const Header = ({ 
@@ -23,13 +24,65 @@ const Header = ({
   searchQuery, 
   onSearchChange,
   onNewTask,
+  profileData,
+  onProfileAction,
   onConfettiTrigger
 }: HeaderProps) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
+  const [currentDate, setCurrentDate] = useState('');
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+
+  // Обновляем текущую дату при загрузке
+  useEffect(() => {
+    updateFullDate();
+    // Обновляем дату каждый день
+    const interval = setInterval(updateCurrentDate, 3600000); // Каждый час
+    return () => clearInterval(interval);
+  }, []);
+
+  // Вариант 1: Просто месяц и год
+  const updateCurrentDate = () => {
+    const now = new Date();
+    const month = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    setCurrentDate(`${month} ${year}`);
+  };
+
+  // Вариант 2: Полная дата с днем недели
+  const updateFullDate = () => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { 
+      month: 'long', 
+      year: 'numeric',
+      weekday: 'long',
+      day: 'numeric'
+    };
+    const formattedDate = now.toLocaleDateString('default', options);
+    setCurrentDate(formattedDate);
+  };
+
+  // Вариант 3: Кастомный формат (например: "Friday, September 27, 2024")
+  const updateCustomDate = () => {
+    const now = new Date();
+    const month = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    const day = now.getDate();
+    const weekday = now.toLocaleString('default', { weekday: 'long' });
+    setCurrentDate(`${weekday}, ${month} ${day}, ${year}`);
+  };
+
+  // Вариант 4: Для русского языка
+  const updateRussianDate = () => {
+    const now = new Date();
+    const month = now.toLocaleString('ru-RU', { month: 'long' });
+    const year = now.getFullYear();
+    // Первая буква заглавная
+    const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+    setCurrentDate(`${capitalizedMonth} ${year}`);
+  };
 
   // Закрытие меню при клике вне его
   useEffect(() => {
@@ -45,70 +98,41 @@ const Header = ({
     };
   }, []);
 
+  // Функция для получения инициалов
+  const getAvatarInitials = () => {
+    if (!profileData?.name) return 'AD';
+    return profileData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   const handleProfileClick = () => {
     setShowProfileMenu(!showProfileMenu);
   };
 
-  const handleProfileAction = (action: string) => {
-    console.log(`Profile action: ${action}`);
+  const handleMenuProfileAction = (action: string) => {
     setShowProfileMenu(false);
-    
-    switch (action) {
-      case 'profile':
-        // Открыть настройки профиля
-        break;
-      case 'settings':
-        // Открыть настройки приложения
-        console.log('Open app settings');
-        alert('App settings will be implemented soon!');
-        break;
-      case 'help':
-        // Открыть справку
-        console.log('Open help');
-        alert('Help & Support will be implemented soon!');
-        break;
-      case 'logout':
-        // Выход из системы
-        if (window.confirm('Are you sure you want to logout?')) {
-          console.log('User logged out');
-          // Здесь будет логика выхода
-        }
-        break;
-    }
+    onProfileAction(action);
   };
 
   // Обработчик клика на логотип для пасхалки
   const handleLogoClick = () => {
     const currentTime = Date.now();
     
-    // Сбрасываем счетчик, если прошло больше 3 секунд
     if (currentTime - lastClickTime > 3000) {
       setClickCount(1);
     } else {
       const newCount = clickCount + 1;
       setClickCount(newCount);
       
-      // Показываем подсказку при каждом клике
-      const messages = [
-        "Keep going!",
-        "Almost there!",
-        "One more click!",
-        "You're close!",
-        "🎉 Secret unlocked!"
-      ];
-      
       if (newCount < 5) {
-        console.log(`Logo clicked ${newCount} times: ${messages[newCount - 1]}`);
+        console.log(`Logo clicked ${newCount} times`);
       }
       
-      // При 5 кликах запускаем конфетти
       if (newCount === 5) {
         console.log("🎊 CONFETTI TIME! 🎊");
         if (onConfettiTrigger) {
           onConfettiTrigger();
         }
         
-        // Анимация логотипа
         if (logoRef.current) {
           logoRef.current.style.transform = 'scale(1.2)';
           logoRef.current.style.transition = 'transform 0.3s ease';
@@ -120,7 +144,6 @@ const Header = ({
           }, 300);
         }
         
-        // Сбрасываем счетчик через 2 секунды
         setTimeout(() => {
           setClickCount(0);
         }, 2000);
@@ -130,7 +153,6 @@ const Header = ({
     setLastClickTime(currentTime);
   };
 
-  // Добавляем класс для анимации при нескольких кликах
   const logoClass = clickCount > 0 ? `${styles.logo} ${styles.logoPulse}` : styles.logo;
 
   return (
@@ -148,7 +170,7 @@ const Header = ({
         </div>
         <div className={styles.dateDisplay}>
           <Calendar size={18} />
-          <span>September 2026</span>
+          <span>{currentDate}</span>
         </div>
       </div>
       
@@ -181,20 +203,34 @@ const Header = ({
             className={styles.userAvatar}
             onClick={handleProfileClick}
             aria-label="Profile menu"
+            style={profileData?.avatar ? {
+              backgroundImage: `url(${profileData.avatar})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              color: 'transparent'
+            } : {}}
           >
-            <span>AD</span>
+            {!profileData?.avatar && <span>{getAvatarInitials()}</span>}
           </button>
           
           {showProfileMenu && (
             <div className={styles.profileMenu}>
               <div className={styles.profileInfo}>
-                <div className={styles.profileAvatarLarge}>
-                  <span>AD</span>
+                <div 
+                  className={styles.profileAvatarLarge}
+                  style={profileData?.avatar ? {
+                    backgroundImage: `url(${profileData.avatar})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    color: 'transparent'
+                  } : {}}
+                >
+                  {!profileData?.avatar && <span>{getAvatarInitials()}</span>}
                 </div>
                 <div className={styles.profileDetails}>
-                  <h3>Alex Doe</h3>
-                  <p className={styles.profileEmail}>alex.doe@protonoro.com</p>
-                  <p className={styles.profileRole}>Product Manager</p>
+                  <h3>{profileData?.name || 'Alex Doe'}</h3>
+                  <p className={styles.profileEmail}>{profileData?.email || 'alex.doe@protonoro.com'}</p>
+                  <p className={styles.profileRole}>{profileData?.role || 'Product Manager'}</p>
                 </div>
               </div>
               
@@ -202,7 +238,7 @@ const Header = ({
               
               <button 
                 className={styles.menuItem}
-                onClick={() => handleProfileAction('profile')}
+                onClick={() => handleMenuProfileAction('profile')}
               >
                 <User size={16} />
                 <span>My Profile</span>
@@ -210,7 +246,7 @@ const Header = ({
               
               <button 
                 className={styles.menuItem}
-                onClick={() => handleProfileAction('settings')}
+                onClick={() => handleMenuProfileAction('settings')}
               >
                 <Settings size={16} />
                 <span>Settings</span>
@@ -218,7 +254,7 @@ const Header = ({
               
               <button 
                 className={styles.menuItem}
-                onClick={() => handleProfileAction('help')}
+                onClick={() => handleMenuProfileAction('help')}
               >
                 <HelpCircle size={16} />
                 <span>Help & Support</span>
@@ -228,7 +264,7 @@ const Header = ({
               
               <button 
                 className={`${styles.menuItem} ${styles.menuItemLogout}`}
-                onClick={() => handleProfileAction('logout')}
+                onClick={() => handleMenuProfileAction('logout')}
               >
                 <LogOut size={16} />
                 <span>Logout</span>
