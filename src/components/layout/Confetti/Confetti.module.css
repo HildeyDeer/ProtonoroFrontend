@@ -1,0 +1,44 @@
+.confettiContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confettiParticle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+}
+
+.confettiParticle.circle {
+  border-radius: 50%;
+}
+
+.confettiParticle.square {
+  border-radius: 2px;
+}
+
+.confettiParticle.triangle {
+  width: 0;
+  height: 0;
+  background: transparent !important;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 12px solid;
+}
+
+.confettiParticle.triangle::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: -6px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid;
+  border-top-color: inherit;
+}

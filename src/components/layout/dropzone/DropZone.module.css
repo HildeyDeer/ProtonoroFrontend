@@ -296,3 +296,272 @@
     padding: 1rem;
   }
 }
+
+.categoryActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.categorySettingsBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.categorySettingsBtn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.removeCategoryBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.removeCategoryBtn:hover {
+  background: var(--danger-color);
+  color: white;
+}
+
+.categoryTaskCount {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-left: 0.5rem;
+}
+
+.categoryMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  min-width: 160px;
+  z-index: 10;
+  margin-top: 0.25rem;
+}
+
+.categoryMenu button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.categoryMenu button:last-child {
+  border-bottom: none;
+}
+
+.categoryMenu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.categoryMenu .deleteBtn {
+  color: var(--danger-color);
+}
+
+.categoryMenu .deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.taskMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  min-width: 140px;
+  z-index: 10;
+  margin-top: 0.25rem;
+}
+
+.taskMenu button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.taskMenu button:last-child {
+  border-bottom: none;
+}
+
+.taskMenu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.taskMenu .deleteBtn {
+  color: var(--danger-color);
+}
+
+.taskMenu .deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+.taskActions {
+  display: flex;
+  align-items: center;
+  position: relative; /* Добавляем для позиционирования меню */
+}
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.taskMenu {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  min-width: 140px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.taskMenu button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.taskMenu button:last-child {
+  border-bottom: none;
+}
+
+.taskMenu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.taskMenu .deleteBtn {
+  color: var(--danger-color);
+}
+
+.taskMenu .deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Стили для hover эффекта меню */
+.taskMenu:hover {
+  display: block;
+}
+
+/* Анимация исчезновения */
+.taskMenu.fadeOut {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+/* Обновите стили кнопок в меню */
+.categoryMenu button,
+.taskMenu button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categoryMenu button:last-child,
+.taskMenu button:last-child {
+  border-bottom: none;
+}
+
+.categoryMenu button:hover,
+.taskMenu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.categoryMenu .deleteBtn,
+.taskMenu .deleteBtn {
+  color: var(--danger-color);
+}
+
+.categoryMenu .deleteBtn:hover,
+.taskMenu .deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}

@@ -1,6 +1,7 @@
-import { MoreVertical, X, CheckCircle, Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { MoreVertical, X, Clock, CheckCircle, Settings } from 'lucide-react';
 import styles from './DropZone.module.css';
-import type { DroppedCategory } from '../../../types/index';
+import type { DroppedCategory, Task } from '../../../types';
 
 interface DropZoneProps {
   droppedCategories: DroppedCategory[];
@@ -10,7 +11,10 @@ interface DropZoneProps {
   onDragLeave: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
   onRemoveCategory: (id: number) => void;
+  onTaskAction: (categoryId: number, task: Task, action: 'edit' | 'delete') => void;
   onToggleTaskCompletion: (categoryId: number, taskId: number) => void;
+  onEditCategory: (categoryId: number) => void;
+  onDeleteCategory: (categoryId: number) => void;
 }
 
 const DropZone = ({
@@ -21,14 +25,68 @@ const DropZone = ({
   onDragLeave,
   onDrop,
   onRemoveCategory,
-  onToggleTaskCompletion
+  onTaskAction,
+  onToggleTaskCompletion,
+  onEditCategory,
+  onDeleteCategory
 }: DropZoneProps) => {
+  const [showTaskMenu, setShowTaskMenu] = useState<{categoryId: number, taskId: number} | null>(null);
+  const [showCategoryMenuId, setShowCategoryMenuId] = useState<number | null>(null);
+  const taskMenuRef = useRef<HTMLDivElement>(null);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
+
+  // Закрытие меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (taskMenuRef.current && !taskMenuRef.current.contains(event.target as Node)) {
+        setShowTaskMenu(null);
+      }
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(event.target as Node)) {
+        setShowCategoryMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleTaskMenuClick = (categoryId: number, taskId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (showTaskMenu?.categoryId === categoryId && showTaskMenu?.taskId === taskId) {
+      setShowTaskMenu(null);
+    } else {
+      setShowTaskMenu({ 
+        categoryId, 
+        taskId
+      });
+      setShowCategoryMenuId(null);
+    }
+  };
+
+  const handleCategoryMenuClick = (categoryId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (showCategoryMenuId === categoryId) {
+      setShowCategoryMenuId(null);
+    } else {
+      setShowCategoryMenuId(categoryId);
+      setShowTaskMenu(null);
+    }
+  };
+
   return (
     <div 
       className={`${styles.dropZone} ${droppedCategories.length === 0 ? styles.empty : ''} ${isDragOver ? styles.dragOver : ''}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
+      onClick={() => {
+        setShowTaskMenu(null);
+        setShowCategoryMenuId(null);
+      }}
     >
       {droppedCategories.length === 0 ? (
         <div className={styles.dropPlaceholder}>
@@ -47,13 +105,51 @@ const DropZone = ({
                     style={{ backgroundColor: category.color }}
                   />
                   <h4>{category.name}</h4>
+                  <span className={styles.categoryTaskCount}>
+                    ({category.tasks.length} tasks)
+                  </span>
                 </div>
-                <button 
-                  className={styles.removeCategory}
-                  onClick={() => onRemoveCategory(category.id)}
-                >
-                  <X size={16} />
-                </button>
+                <div className={styles.categoryActions} ref={categoryMenuRef}>
+                  <button 
+                    className={styles.categorySettingsBtn}
+                    onClick={(e) => handleCategoryMenuClick(category.id, e)}
+                    title="Category settings"
+                  >
+                    <Settings size={16} />
+                  </button>
+                  
+                  {showCategoryMenuId === category.id && (
+                    <div className={styles.categoryMenu}>
+                      <button 
+                        onClick={() => {
+                          onEditCategory(category.id);
+                          setShowCategoryMenuId(null);
+                        }}
+                      >
+                        ✏️ Edit Category
+                      </button>
+                      <button 
+                        className={styles.deleteBtn}
+                        onClick={() => {
+                          if (window.confirm(`Delete category "${category.name}"?`)) {
+                            onDeleteCategory(category.id);
+                            setShowCategoryMenuId(null);
+                          }
+                        }}
+                      >
+                        🗑️ Delete Category
+                      </button>
+                    </div>
+                  )}
+                  
+                  <button 
+                    className={styles.removeCategoryBtn}
+                    onClick={() => onRemoveCategory(category.id)}
+                    title="Remove from view"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
               
               <div className={styles.categoryTasks}>
@@ -63,13 +159,49 @@ const DropZone = ({
                     task.description.toLowerCase().includes(searchQuery.toLowerCase())
                   )
                   .map(task => (
-                    <div key={task.id} className={`${styles.taskCard} ${task.completed ? styles.completed : ''}`}>
+                    <div 
+                      key={task.id} 
+                      className={`${styles.taskCard} ${task.completed ? styles.completed : ''}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className={styles.taskHeader}>
                         <span className={styles.taskDate}>{task.date} {task.time}</span>
                         <div className={styles.taskActions}>
-                          <button className={styles.iconBtn}>
+                          <button 
+                            className={styles.iconBtn}
+                            onClick={(e) => handleTaskMenuClick(category.id, task.id, e)}
+                          >
                             <MoreVertical size={16} />
                           </button>
+                          
+                          {showTaskMenu?.categoryId === category.id && showTaskMenu?.taskId === task.id && (
+                            <div 
+                              className={styles.taskMenu}
+                              ref={taskMenuRef}
+                              style={{
+                                position: 'absolute',
+                                right: '0',
+                                top: '100%',
+                                zIndex: 1000
+                              }}
+                            >
+                              <button onClick={() => {
+                                onTaskAction(category.id, task, 'edit');
+                                setShowTaskMenu(null);
+                              }}>
+                                ✏️ Edit Task
+                              </button>
+                              <button 
+                                className={styles.deleteBtn}
+                                onClick={() => {
+                                  onTaskAction(category.id, task, 'delete');
+                                  setShowTaskMenu(null);
+                                }}
+                              >
+                                🗑️ Delete Task
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 

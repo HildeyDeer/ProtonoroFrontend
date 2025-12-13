@@ -1,6 +1,7 @@
-import { Target, BarChart3, CheckCircle, Clock, GripVertical, ChevronRight } from 'lucide-react';
+import { Target, BarChart3, CheckCircle, Clock, GripVertical, ChevronRight, Plus } from 'lucide-react';
+//import { useState } from 'react';
 import styles from './Sidebar.module.css';
-import type { Category } from '../../../types/index';
+import type { Category } from '../../../types';
 
 interface SidebarProps {
   categories: Category[];
@@ -9,6 +10,10 @@ interface SidebarProps {
   onDragStart: (category: Category, e: React.DragEvent) => void;
   onMouseEnter: (category: Category, e: React.MouseEvent) => void;
   onMouseLeave: () => void;
+  onAddCategory: () => void;
+  onOpenAnalytics: () => void;
+  onTasksClick: (e: React.MouseEvent) => void;
+  activeTab: 'tasks' | 'analytics';
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
@@ -21,6 +26,10 @@ const Sidebar = ({
   onDragStart,
   onMouseEnter,
   onMouseLeave,
+  onAddCategory,
+  onOpenAnalytics,
+  onTasksClick,
+  activeTab,
   totalTasks,
   completedTasks,
   inProgressTasks
@@ -28,18 +37,33 @@ const Sidebar = ({
   return (
     <aside className={styles.sidebar}>
       <nav className={styles.sidebarNav}>
-        <a href="#" className={`${styles.navItem} ${styles.active}`}>
+        <button 
+          className={`${styles.navItem} ${activeTab === 'tasks' ? styles.active : ''}`}
+          onClick={onTasksClick}
+        >
           <Target size={20} />
           <span>Tasks</span>
-        </a>
-        <a href="#" className={styles.navItem}>
+        </button>
+        <button 
+          className={`${styles.navItem} ${activeTab === 'analytics' ? styles.active : ''}`}
+          onClick={onOpenAnalytics}
+        >
           <BarChart3 size={20} />
           <span>Analytics</span>
-        </a>
+        </button>
       </nav>
 
       <div className={styles.categoriesSection}>
-        <h3>Drag Categories to Main Area</h3>
+        <div className={styles.sectionHeader}>
+          <h3>Categories</h3>
+          <button 
+            className={styles.addCategoryButton}
+            onClick={onAddCategory}
+            title="Add new category"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
         <div className={styles.categoryFilters}>
           {categories.map(category => (
             <div 
