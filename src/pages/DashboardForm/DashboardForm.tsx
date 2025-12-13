@@ -11,7 +11,7 @@ import ProfileModal from '../../components/layout/Modals/ProfileModal/ProfileMod
 import Analytics from '../../components/layout/Analytics/Analytics';
 import Confetti from '../../components/layout/Confetti/Confetti';
 import type { Category, TimerState, TimerMode, DroppedCategory, Task } from '../../types';
-import './DashboardForm.module.css';
+import '../../styles/App.css';
 
 const Dashboard = () => {
   const navigate = useNavigate(); // Хук для навигации
@@ -53,6 +53,7 @@ const Dashboard = () => {
   // Search
   const [searchQuery, setSearchQuery] = useState('');
 
+  
   // Профиль пользователя
   const [profileData, setProfileData] = useState({
     name: 'Alex Doe',
@@ -62,9 +63,9 @@ const Dashboard = () => {
   
   
   // Функция для получения инициалов из имени
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
+  // const getInitials = (name: string) => {
+  //   return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  // };
 
   // Активная вкладка (задачи / аналитика)
   const [activeTab, setActiveTab] = useState<'tasks' | 'analytics'>('tasks');
