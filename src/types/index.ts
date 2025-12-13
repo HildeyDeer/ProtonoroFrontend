@@ -16,7 +16,8 @@ export type Category = {
   tasks: Task[];
 };
 
-export type TimerState = 'stopped' | 'running' | 'paused';
+export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
+export type TimerState = 'running' | 'paused' | 'stopped';
 
 export type DroppedCategory = {
   id: number;
