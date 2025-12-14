@@ -1,4 +1,4 @@
-/* Переменные CSS */
+/* Переменные CSS для светлой темы */
 :root {
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
@@ -11,6 +11,29 @@
   --success-color: #10b981;
   --error-color: #ef4444;
   --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --bg-primary-rgb: 255, 255, 255;
+  --border-color-rgb: 226, 232, 240;
+}
+
+/* Переменные CSS для темной темы */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --border-color: #475569;
+    --primary-color: #60a5fa;
+    --success-color: #34d399;
+    --error-color: #f87171;
+    --warning-color: #fbbf24;
+    --danger-color: #f87171;
+    --bg-primary-rgb: 15, 23, 42;
+    --border-color-rgb: 71, 85, 105;
+  }
 }
 
 /* Основной контейнер */
@@ -54,7 +77,7 @@
   height: 400px;
   bottom: -200px;
   left: -100px;
-  background: var(--success-color);
+  background: var(--warning-color);
 }
 
 .bgGradient {
@@ -66,6 +89,12 @@
   background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
 }
 
+@media (prefers-color-scheme: dark) {
+  .bgGradient {
+    background: radial-gradient(circle at 20% 50%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
+  }
+}
+
 /* Хедер */
 .registerHeader {
   position: sticky;
@@ -74,10 +103,18 @@
   right: 0;
   z-index: 100;
   padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(var(--bg-primary-rgb), 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+  border-bottom: 1px solid rgba(var(--border-color-rgb), 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .registerHeader {
+    background: rgba(var(--bg-primary-rgb), 0.9);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+  }
 }
 
 .headerContent {
@@ -86,6 +123,7 @@
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+  gap: 2rem;
 }
 
 .logoSection {
@@ -95,61 +133,71 @@
 }
 
 .logoIcon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  color: var(--primary-color);
 }
 
 .logoIcon svg {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 24px;
+  height: 24px;
+  stroke: white;
 }
 
 .logoText {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-primary);
 }
 
 .logoFirst {
-  color: var(--primary-color);
+  color: #3b82f6 !important;
+  letter-spacing: -0.5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .logoFirst {
+    color: #60a5fa !important;
+  }
+  .logoIcon {
+    background: #60a5fa !important;
+  }
 }
 
 .btnBack {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
   font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .btnBack:hover:not(:disabled) {
   background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--text-tertiary);
-}
-
-.btnBack:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  transform: translateY(-1px);
 }
 
 .btnBack svg {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
+}
+
+.btnBack:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* Основной контент */
@@ -165,7 +213,7 @@
 
 .registerWrapper {
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
 }
 
 /* Карточка регистрации */
@@ -175,6 +223,13 @@
   padding: 2.5rem;
   border: 1px solid var(--border-color);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .registerCard {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--border-color);
+  }
 }
 
 .registerHeaderSection {
@@ -202,15 +257,17 @@
 
 .oauthTitle {
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
   text-align: center;
   margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .oauthButtons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -220,31 +277,45 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border: 1px solid var(--border-color);
+  padding: 0.875rem 1.5rem;
   border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .oauthBtn:hover:not(:disabled) {
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .oauthBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
+.oauthBtn.google:hover {
+  border-color: #4285F4;
+}
+
+.oauthBtn.github:hover {
+  border-color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .oauthBtn.github:hover {
+    border-color: #f0f6fc;
+  }
+}
+
 .oauthIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,14 +326,8 @@
   height: 100%;
 }
 
-.google:hover:not(:disabled) {
-  border-color: #4285f4;
-  color: #4285f4;
-}
-
-.github:hover:not(:disabled) {
-  border-color: #333;
-  color: #333;
+.oauthBtn.github .oauthIcon svg {
+  color: var(--text-primary);
 }
 
 .divider {
@@ -286,8 +351,9 @@
   display: inline-block;
   padding: 0 1rem;
   background: var(--bg-primary);
-  font-size: 0.875rem;
   color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 /* Форма */
@@ -307,19 +373,16 @@
   margin-bottom: 0.5rem;
 }
 
+/* Общий стиль для полей ввода */
 .formInput {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.formInput:hover:not(:disabled) {
-  border-color: var(--text-tertiary);
+  transition: all 0.3s ease;
 }
 
 .formInput:focus {
@@ -328,24 +391,111 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+@media (prefers-color-scheme: dark) {
+  .formInput:focus {
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+  }
+}
+
 .formInput.error {
-  border-color: var(--error-color);
+  border-color: var(--danger-color);
 }
 
 .formInput.error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
+@media (prefers-color-scheme: dark) {
+  .formInput.error:focus {
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
+  }
+}
+
 .formInput:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
-  background: var(--bg-tertiary);
 }
 
 .errorMessage {
   font-size: 0.75rem;
-  color: var(--error-color);
+  color: var(--danger-color);
   margin-top: 0.5rem;
+}
+
+/* Поле полного имени */
+.fullNameInput {
+  composes: formInput;
+}
+
+.fullNameInput::placeholder {
+  color: var(--text-tertiary);
+  font-weight: normal;
+}
+
+/* Поле имени пользователя */
+.usernameInputContainer {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  background: var(--bg-primary);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.usernameInputContainer:hover:not(:disabled) {
+  border-color: var(--text-tertiary);
+}
+
+.usernameInputContainer:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .usernameInputContainer:focus-within {
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+  }
+}
+
+.usernamePrefix {
+  padding: 0 1rem;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--bg-tertiary);
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.usernameInput {
+  flex: 1;
+  padding: 0.875rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  min-width: 0;
+}
+
+.usernameInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.usernameInput:focus {
+  outline: none;
+}
+
+/* Подсказки для полей */
+.fieldHint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
 }
 
 /* Подсказки для пароля */
@@ -404,6 +554,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   cursor: pointer;
+  user-select: none;
 }
 
 .checkboxInput {
@@ -411,27 +562,17 @@
 }
 
 .checkboxCustom {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   border: 2px solid var(--border-color);
-  border-radius: 0.375rem;
+  border-radius: 4px;
   background: var(--bg-primary);
   position: relative;
   transition: all 0.2s ease;
-}
-
-.checkboxCustom::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 0.75rem;
-  height: 0.75rem;
-  background: var(--primary-color);
-  border-radius: 0.125rem;
-  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .checkboxInput:checked + .checkboxCustom {
@@ -440,15 +581,16 @@
 }
 
 .checkboxInput:checked + .checkboxCustom::after {
-  transform: translate(-50%, -50%) scale(1);
-  background: white;
+  content: '✓';
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 .checkboxText {
   font-size: 0.875rem;
   color: var(--text-secondary);
   line-height: 1.4;
-  user-select: none;
 }
 
 .linkTerms {
@@ -459,11 +601,18 @@
   font-size: inherit;
   cursor: pointer;
   transition: color 0.2s ease;
+  text-decoration: none;
 }
 
 .linkTerms:hover {
   color: #2563eb;
   text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .linkTerms:hover {
+    color: #93c5fd;
+  }
 }
 
 /* Кнопка регистрации */
@@ -496,13 +645,20 @@
   cursor: not-allowed;
 }
 
+@media (prefers-color-scheme: dark) {
+  .btnRegisterSubmit:hover:not(:disabled) {
+    background: #3b82f6;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  }
+}
+
 .loadingSpinner {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
   border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -534,6 +690,40 @@
 .linkLogin:hover {
   color: #2563eb;
   text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .linkLogin:hover {
+    color: #93c5fd;
+  }
+}
+
+/* Стили для общей ошибки */
+.generalError {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #fee;
+  border: 1px solid #f99;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #c00;
+  font-size: 14px;
+}
+
+.generalError svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .generalError {
+    background: linear-gradient(135deg, #2d1a1a 0%, #3a1d1d 100%);
+    border-color: #fecaca;
+    color: #fecaca;
+  }
 }
 
 /* Секция преимуществ */
@@ -635,101 +825,24 @@
   .benefitsGrid {
     grid-template-columns: 1fr;
   }
-  /* Стили для общей ошибки */
-.generalError {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: linear-gradient(135deg, #fef3f2 0%, #fff6f6 100%);
-  border: 1px solid #fda29b;
-  border-radius: 12px;
-  margin-bottom: 24px;
 }
 
-.errorIcon {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.errorText {
-  color: #d92d20;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-/* Стили для поля username с префиксом */
-.usernameInputContainer {
-  display: flex;
-  align-items: center;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.usernameInputContainer:focus-within {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.usernamePrefix {
-  padding: 0 12px;
-  color: #6b7280;
-  font-weight: 500;
-  font-size: 14px;
-  background: #f9fafb;
-  border-right: 1px solid #e5e7eb;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-
-.usernameInput {
-  border: none !important;
-  padding-left: 8px !important;
-  flex: 1;
-  min-width: 0;
-}
-
-.usernameInput:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-/* Подсказки для полей */
-.fieldHint {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
-/* Адаптация для мобильных устройств */
 @media (max-width: 640px) {
   .usernameInputContainer {
     flex-direction: column;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
   }
   
   .usernamePrefix {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
     padding: 8px 12px;
+    justify-content: center;
   }
   
   .usernameInput {
     width: 100%;
     padding-left: 12px !important;
   }
-}
 }

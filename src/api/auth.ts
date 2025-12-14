@@ -686,7 +686,7 @@ export const checkAndRefreshToken = async (): Promise<boolean> => {
     }
 };
 
-// Хук для удобного использования аутентификации
+
 // Хук для удобного использования аутентификации
 export const useAuth = () => {
     const {
