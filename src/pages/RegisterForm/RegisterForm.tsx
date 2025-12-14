@@ -1,24 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../api/auth'; // Импортируем хук из auth.ts
 import styles from './RegisterForm.module.css';
+
+interface RegisterFormData {
+  fullName: string; // Полное имя для бэкенда
+  username: string; // Имя пользователя для входа
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
+}
+
+interface RegisterErrors {
+  fullName?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  agreeToTerms?: string;
+  general?: string; // Общая ошибка
+}
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
+  
+  // Используем хук useAuth для регистрации
+  const { register: registerApi, loading } = useAuth();
+  
+  const [formData, setFormData] = useState<RegisterFormData>({
+    fullName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
     agreeToTerms: false
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{
-    name?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-    agreeToTerms?: string;
-  }>({});
+  
+  const [errors, setErrors] = useState<RegisterErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -28,26 +47,43 @@ const RegisterForm = () => {
     }));
     
     // Очищаем ошибку при изменении поля
-    if (errors[name as keyof typeof errors]) {
+    if (errors[name as keyof RegisterErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+    
+    // Очищаем общую ошибку при любом изменении
+    if (errors.general) {
+      setErrors(prev => ({ ...prev, general: undefined }));
     }
   };
 
   const validateForm = () => {
-    const newErrors: typeof errors = {};
+    const newErrors: RegisterErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Имя обязательно';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Имя должно содержать минимум 2 символа';
+    // Валидация полного имени
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Полное имя обязательно';
+    } else if (formData.fullName.trim().length < 2) {
+      newErrors.fullName = 'Полное имя должно содержать минимум 2 символа';
     }
     
+    // Валидация имени пользователя
+    if (!formData.username.trim()) {
+      newErrors.username = 'Имя пользователя обязательно';
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = 'Имя пользователя должно содержать минимум 3 символа';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username = 'Только латинские буквы, цифры и нижнее подчеркивание';
+    }
+    
+    // Валидация email
     if (!formData.email) {
       newErrors.email = 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Некорректный email';
     }
     
+    // Валидация пароля
     if (!formData.password) {
       newErrors.password = 'Пароль обязателен';
     } else if (formData.password.length < 8) {
@@ -56,12 +92,14 @@ const RegisterForm = () => {
       newErrors.password = 'Пароль должен содержать заглавные и строчные буквы и цифры';
     }
     
+    // Подтверждение пароля
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Подтверждение пароля обязательно';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Пароли не совпадают';
     }
     
+    // Согласие с условиями
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'Необходимо согласие с условиями';
     }
@@ -75,35 +113,58 @@ const RegisterForm = () => {
     
     if (!validateForm()) return;
     
-    setIsLoading(true);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Registration attempt:', {
-        ...formData,
-        password: '***'
-      });
+      // Используем функцию register из auth.ts
+      // Передаем fullName и username отдельно
+      const result = await registerApi(
+        formData.email, 
+        formData.password, 
+        formData.fullName, // full_name
+        formData.username  // username
+      );
       
-      navigate('/register/success');
+      if (result.success && result.data) {
+        // Регистрация успешна
+        console.log('Registration successful:', result.data);
+        
+        // Автоматически логиним пользователя после успешной регистрации
+        // или переходим на страницу успеха
+        navigate('/register/success', { 
+          state: { 
+            email: formData.email,
+            username: formData.username 
+          }
+        });
+      } else {
+        // Обработка ошибок регистрации
+        const errorMessage = result.error || 'Ошибка регистрации';
+        
+        if (errorMessage.includes('email') || errorMessage.includes('Email')) {
+          setErrors({ email: 'Пользователь с таким email уже существует' });
+        } else if (errorMessage.includes('user') || errorMessage.includes('User')) {
+          setErrors({ username: 'Пользователь с таким именем уже существует' });
+        } else {
+          setErrors({ general: errorMessage });
+        }
+      }
     } catch (error) {
       console.error('Registration error:', error);
-      setErrors({ email: 'Этот email уже используется' });
-    } finally {
-      setIsLoading(false);
+      setErrors({ general: 'Произошла ошибка при регистрации. Попробуйте позже.' });
     }
   };
 
   const handleOAuthRegister = (provider: string) => {
-    setIsLoading(true);
+    // Используем loading из useAuth
+    if (loading) return;
+    
     console.log(`OAuth registration with ${provider}`);
     
     setTimeout(() => {
       alert(`Регистрация через ${provider} скоро будет доступна`);
-      setIsLoading(false);
     }, 1000);
   };
 
-  return (
+    return (
     <div className={styles.registerContainer}>
       {/* Фоновые элементы */}
       <div className={styles.registerBackground}>
@@ -139,7 +200,7 @@ const RegisterForm = () => {
           <button 
             className={styles.btnBack} 
             onClick={() => navigate('/')}
-            disabled={isLoading}
+            disabled={loading}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -160,6 +221,14 @@ const RegisterForm = () => {
               </p>
             </div>
 
+            {/* Общая ошибка */}
+            {errors.general && (
+              <div className={styles.generalError}>
+                <div className={styles.errorIcon}>⚠️</div>
+                <div className={styles.errorText}>{errors.general}</div>
+              </div>
+            )}
+
             {/* OAuth Providers */}
             <div className={styles.oauthSection}>
               <h3 className={styles.oauthTitle}>Быстрая регистрация</h3>
@@ -167,7 +236,7 @@ const RegisterForm = () => {
                 <button 
                   className={`${styles.oauthBtn} ${styles.google}`}
                   onClick={() => handleOAuthRegister('Google')}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
                   <div className={styles.oauthIcon}>
                     <svg viewBox="0 0 24 24">
@@ -183,7 +252,7 @@ const RegisterForm = () => {
                 <button 
                   className={`${styles.oauthBtn} ${styles.github}`}
                   onClick={() => handleOAuthRegister('GitHub')}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
                   <div className={styles.oauthIcon}>
                     <svg viewBox="0 0 24 24">
@@ -201,25 +270,56 @@ const RegisterForm = () => {
 
             {/* Registration Form */}
             <form className={styles.registerForm} onSubmit={handleSubmit}>
+              {/* Поле полного имени */}
               <div className={styles.formGroup}>
-                <label htmlFor="name" className={styles.formLabel}>
-                  Имя
+                <label htmlFor="fullName" className={styles.formLabel}>
+                  Полное имя
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
-                  className={`${styles.formInput} ${errors.name ? styles.error : ''}`}
-                  placeholder="Ваше имя"
-                  disabled={isLoading}
+                  className={`${styles.formInput} ${errors.fullName ? styles.error : ''}`}
+                  placeholder="Иван Иванов"
+                  disabled={loading}
                 />
-                {errors.name && (
-                  <div className={styles.errorMessage}>{errors.name}</div>
+                {errors.fullName && (
+                  <div className={styles.errorMessage}>{errors.fullName}</div>
                 )}
+                <div className={styles.fieldHint}>
+                  Будет отображаться в вашем профиле
+                </div>
               </div>
 
+              {/* Поле имени пользователя */}
+              <div className={styles.formGroup}>
+                <label htmlFor="username" className={styles.formLabel}>
+                  Имя пользователя
+                </label>
+                <div className={styles.usernameInputContainer}>
+                  <div className={styles.usernamePrefix}>@</div>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className={`${styles.formInput} ${styles.usernameInput} ${errors.username ? styles.error : ''}`}
+                    placeholder="ivan_ivanov"
+                    disabled={loading}
+                  />
+                </div>
+                {errors.username && (
+                  <div className={styles.errorMessage}>{errors.username}</div>
+                )}
+                <div className={styles.fieldHint}>
+                  Используется для входа и упоминаний
+                </div>
+              </div>
+
+              {/* Поле email */}
               <div className={styles.formGroup}>
                 <label htmlFor="email" className={styles.formLabel}>
                   Email
@@ -232,13 +332,14 @@ const RegisterForm = () => {
                   onChange={handleChange}
                   className={`${styles.formInput} ${errors.email ? styles.error : ''}`}
                   placeholder="your@email.com"
-                  disabled={isLoading}
+                  disabled={loading}
                 />
                 {errors.email && (
                   <div className={styles.errorMessage}>{errors.email}</div>
                 )}
               </div>
 
+              {/* Поле пароля */}
               <div className={styles.formGroup}>
                 <label htmlFor="password" className={styles.formLabel}>
                   Пароль
@@ -251,7 +352,7 @@ const RegisterForm = () => {
                   onChange={handleChange}
                   className={`${styles.formInput} ${errors.password ? styles.error : ''}`}
                   placeholder="••••••••"
-                  disabled={isLoading}
+                  disabled={loading}
                 />
                 {errors.password && (
                   <div className={styles.errorMessage}>{errors.password}</div>
@@ -275,6 +376,7 @@ const RegisterForm = () => {
                 </div>
               </div>
 
+              {/* Подтверждение пароля */}
               <div className={styles.formGroup}>
                 <label htmlFor="confirmPassword" className={styles.formLabel}>
                   Подтверждение пароля
@@ -287,13 +389,14 @@ const RegisterForm = () => {
                   onChange={handleChange}
                   className={`${styles.formInput} ${errors.confirmPassword ? styles.error : ''}`}
                   placeholder="••••••••"
-                  disabled={isLoading}
+                  disabled={loading}
                 />
                 {errors.confirmPassword && (
                   <div className={styles.errorMessage}>{errors.confirmPassword}</div>
                 )}
               </div>
 
+              {/* Согласие с условиями */}
               <div className={`${styles.formGroup} ${styles.termsCheckbox}`}>
                 <label className={styles.checkboxLabel}>
                   <input
@@ -301,7 +404,7 @@ const RegisterForm = () => {
                     name="agreeToTerms"
                     checked={formData.agreeToTerms}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     className={styles.checkboxInput}
                   />
                   <span className={styles.checkboxCustom}></span>
@@ -332,9 +435,9 @@ const RegisterForm = () => {
               <button 
                 type="submit" 
                 className={styles.btnRegisterSubmit}
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <span>Регистрация...</span>
                     <div className={styles.loadingSpinner}></div>

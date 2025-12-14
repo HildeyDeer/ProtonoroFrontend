@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // Добавляем useNavigate
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../api/auth';
 import Header from '../../components/layout/Header/Header';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import TimerSection from '../../components/layout/timer/TimerSection';
@@ -14,99 +15,141 @@ import type { Category, TimerState, TimerMode, DroppedCategory, Task } from '../
 import '../../styles/App.css';
 
 const Dashboard = () => {
-  const navigate = useNavigate(); // Хук для навигации
+  const navigate = useNavigate();
   
-  // Состояние для конфетти
-  const [showConfetti, setShowConfetti] = useState(false);
+  // ✅ ИСПОЛЬЗУЕМ ХУК useAuth
+  const { user, isAuthenticated, logout, checkAuthStatus } = useAuth();
+  const [authChecked, setAuthChecked] = useState(false);
+  
+  // Проверка авторизации
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (authChecked) return;
+      
+      try {
+        console.log('Starting auth check...');
+        
+        if (isAuthenticated) {
+          console.log('Already authenticated');
+          setAuthChecked(true);
+          return;
+        }
+        
+        if (checkAuthStatus) {
+          const isAuth = await checkAuthStatus();
+          console.log('Auth check result:', isAuth);
+          
+          if (!isAuth) {
+            console.log('Not authenticated, redirecting to login');
+            navigate('/login');
+          } else {
+            console.log('Authenticated successfully');
+          }
+        } else {
+          console.log('No auth check function, user not authenticated');
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        navigate('/login');
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    
+    if (!authChecked) {
+      checkAuth();
+    }
+  }, [checkAuthStatus, navigate, isAuthenticated, authChecked]);
 
-  // Темная тема
+  // Состояния компонента
+  const [showConfetti, setShowConfetti] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  
-  // Таймер
   const [timerMode, setTimerMode] = useState<TimerMode>('pomodoro');
-  const [time, setTime] = useState(25 * 60); // 25 минут по умолчанию
+  const [time, setTime] = useState(25 * 60);
   const [timerState, setTimerState] = useState<TimerState>('stopped');
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const intervalRef = useRef<number | null>(null);
   
-  // Drag and Drop
   const [draggedCategory, setDraggedCategory] = useState<Category | null>(null);
   const [droppedCategories, setDroppedCategories] = useState<DroppedCategory[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   
-  // Модальные окна
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   
-  // Редактирование
   const [editingTask, setEditingTask] = useState<{ categoryId: number; task: Task } | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  // Popup state
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [showPopup, setShowPopup] = useState(false);
   const popupTimeoutRef = useRef<number | null>(null);
   
-  // Search
   const [searchQuery, setSearchQuery] = useState('');
 
-  
-  // Профиль пользователя
+  // ✅ ОБНОВЛЕННЫЙ ПРОФИЛЬ С ПОЛНЫМ ИМЕНЕМ
   const [profileData, setProfileData] = useState({
-    name: 'Alex Doe',
-    email: 'alex.doe@protonoro.com',
-    role: 'Product Manager'
+    name: 'Гость',
+    email: 'Войдите в аккаунт',
+    role: 'Гость',
+    full_name: null as string | null,
+    username: null as string | null
   });
-  
-  
-  // Функция для получения инициалов из имени
-  // const getInitials = (name: string) => {
-  //   return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  // };
 
-  // Активная вкладка (задачи / аналитика)
+  // Обновляем данные профиля при изменении user
+  useEffect(() => {
+    if (user) {
+      // ✅ ПРАВИЛЬНОЕ ФОРМИРОВАНИЕ ИМЕНИ
+      const userFullName = user.full_name || user.fullName || '';
+      const userEmail = user.email || '';
+      const userName = user.username || userEmail.split('@')[0] || 'Пользователь';
+      
+      setProfileData({
+        name: userFullName || userName, // Отображаем полное имя, если есть
+        email: userEmail,
+        role: 'Пользователь',
+        full_name: userFullName || null,
+        username: userName
+      });
+      
+      console.log('Profile data updated:', {
+        full_name: userFullName,
+        username: userName,
+        email: userEmail
+      });
+    } else {
+      setProfileData({
+        name: 'Гость',
+        email: 'Войдите в аккаунт',
+        role: 'Гость',
+        full_name: null,
+        username: null
+      });
+    }
+  }, [user]);
+
   const [activeTab, setActiveTab] = useState<'tasks' | 'analytics'>('tasks');
-  // Данные
+  
+  // Категории
   const [categories, setCategories] = useState<Category[]>([
     { 
       id: 1, 
-      name: 'Category 1', 
+      name: 'Работа', 
       color: '#3b82f6', 
       tasks: [
-        { id: 1, title: 'on employee targets', description: 'Set quarterly targets for sales team', category: 'Category 1', date: '01/9/2026', time: '09:00', progress: 75, completed: false },
-        { id: 2, title: 'on employee target range', description: 'Define target ranges for different roles', category: 'Category 1', date: '01/9/2026', time: '11:30', progress: 100, completed: true },
-        { id: 6, title: 'Team Meeting', description: 'Weekly team sync meeting', category: 'Category 1', date: '03/9/2026', time: '15:00', progress: 100, completed: true },
+        { id: 1, title: 'Создать отчет', description: 'Подготовить еженедельный отчет по проекту', category: 'Работа', date: '01/9/2026', time: '09:00', progress: 75, completed: false },
+        { id: 2, title: 'Планирование задач', description: 'Составить план на следующую неделю', category: 'Работа', date: '01/9/2026', time: '11:30', progress: 100, completed: true },
       ]
     },
     { 
       id: 2, 
-      name: 'Category 2', 
+      name: 'Учеба', 
       color: '#10b981', 
       tasks: [
-        { id: 3, title: 'on employee targets range', description: 'Review and adjust target ranges', category: 'Category 2', date: '02/9/2026', time: '14:00', progress: 30, completed: false },
-        { id: 7, title: 'Budget Planning', description: 'Prepare Q4 budget report', category: 'Category 2', date: '04/9/2026', time: '11:00', progress: 60, completed: false },
-      ]
-    },
-    { 
-      id: 3, 
-      name: 'Category 3', 
-      color: '#8b5cf6', 
-      tasks: [
-        { id: 4, title: 'Performance Review Q3', description: 'Conduct quarterly performance reviews', category: 'Category 3', date: '05/9/2026', time: '10:00', progress: 0, completed: false },
-        { id: 8, title: 'Client Presentation', description: 'Prepare slides for client meeting', category: 'Category 3', date: '06/9/2026', time: '13:00', progress: 40, completed: false },
-        { id: 9, title: 'Documentation Update', description: 'Update project documentation', category: 'Category 3', date: '07/9/2026', time: '16:00', progress: 20, completed: false },
-      ]
-    },
-    { 
-      id: 4, 
-      name: 'Category 4', 
-      color: '#f59e0b', 
-      tasks: [
-        { id: 5, title: 'Training Program Setup', description: 'Launch new employee training program', category: 'Category 4', date: '10/9/2026', time: '13:45', progress: 50, completed: false },
-        { id: 10, title: 'System Migration', description: 'Migrate to new CRM system', category: 'Category 4', date: '12/9/2026', time: '09:30', progress: 80, completed: false },
+        { id: 3, title: 'Изучить React', description: 'Просмотреть уроки по React', category: 'Учеба', date: '02/9/2026', time: '14:00', progress: 30, completed: false },
       ]
     },
   ]);
@@ -120,13 +163,12 @@ const Dashboard = () => {
     }
   }, [darkMode]);
 
-  // Логика таймера с автоматическим переключением режимов
+  // Логика таймера
   useEffect(() => {
     if (timerState === 'running') {
       intervalRef.current = window.setInterval(() => {
         setTime((prevTime) => {
           if (prevTime <= 1) {
-            // Таймер завершился, переключаем режим
             handleTimerComplete();
             return 0;
           }
@@ -150,9 +192,6 @@ const Dashboard = () => {
   // Функция для запуска конфетти
   const handleConfettiTrigger = () => {
     setShowConfetti(true);
-    console.log('🎊 Confetti triggered! 🎊');
-    
-    // Автоматически скрываем конфетти через 3 секунды
     setTimeout(() => {
       setShowConfetti(false);
     }, 3000);
@@ -162,65 +201,48 @@ const Dashboard = () => {
   const handleTimerComplete = () => {
     setTimerState('stopped');
     
-    // Воспроизводим звук уведомления (опционально)
-    if (typeof window !== 'undefined' && window.Notification && Notification.permission === 'granted') {
-      new Notification('Timer Complete!', {
-        body: `${timerMode === 'pomodoro' ? 'Focus time is over!' : 'Break is over!'}`,
-        icon: '/favicon.ico'
-      });
-    }
-
-    // Автоматическое переключение режимов
     if (timerMode === 'pomodoro') {
       setCompletedPomodoros(prev => prev + 1);
       
-      // После каждых 4 помодоро длинный перерыв, иначе короткий
       if (completedPomodoros % 4 === 3) {
         setTimeout(() => {
           setTimerMode('longBreak');
-          setTime(15 * 60); // 15 минут
+          setTime(15 * 60);
         }, 1000);
       } else {
         setTimeout(() => {
           setTimerMode('shortBreak');
-          setTime(5 * 60); // 5 минут
+          setTime(5 * 60);
         }, 1000);
       }
     } else {
-      // После перерыва возвращаемся к работе
       setTimeout(() => {
         setTimerMode('pomodoro');
-        setTime(25 * 60); // 25 минут
+        setTime(25 * 60);
       }, 1000);
     }
   };
 
-  // Функция для изменения режима таймера с анимацией
+  // Функция для изменения режима таймера
   const handleModeChange = (mode: TimerMode) => {
-    // Сначала останавливаем таймер
     setTimerState('stopped');
-    
-    // Меняем режим
     setTimerMode(mode);
     
-    // Устанавливаем время в зависимости от режима
     switch (mode) {
       case 'pomodoro':
-        setTime(25 * 60); // 25 минут
+        setTime(25 * 60);
         break;
       case 'shortBreak':
-        setTime(5 * 60); // 5 минут
+        setTime(5 * 60);
         break;
       case 'longBreak':
-        setTime(15 * 60); // 15 минут
+        setTime(15 * 60);
         break;
     }
   };
 
-  // Обновленные функции управления таймером
   const startTimer = () => {
     if (time === 0) {
-      // Если время закончилось, сбрасываем таймер
       resetTimer();
     }
     setTimerState('running');
@@ -235,7 +257,6 @@ const Dashboard = () => {
     }
     setTimerState('stopped');
     
-    // Сбрасываем время в зависимости от текущего режима
     switch (timerMode) {
       case 'pomodoro':
         setTime(25 * 60);
@@ -270,48 +291,52 @@ const Dashboard = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  
-
-  // ========== ОБРАБОТЧИК АНАЛИТИКИ ==========
   const handleOpenAnalytics = () => {
     setActiveTab('analytics');
     setIsAnalyticsOpen(true);
   };
-  // ========= ОБРАБОТЧИК ЗАКРЫТИЯ АНАЛИТИКИ ==========
+
   const handleCloseAnalytics = () => {
-  setActiveTab('tasks');
-  setIsAnalyticsOpen(false);
+    setActiveTab('tasks');
+    setIsAnalyticsOpen(false);
   };
 
-  // ========== ОБРАБОТЧИК НАЖАТИЯ НА ЗАДАЧИ ==========
   const handleTasksClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setActiveTab('tasks');
     setIsAnalyticsOpen(false);
   };
 
-  // ========== ОБРАБОТЧИКИ ПРОФИЛЯ ==========
-  const handleProfileAction = (action: string) => {
+  // ✅ ОБНОВЛЕННЫЕ ОБРАБОТЧИКИ ПРОФИЛЯ
+  const handleProfileAction = async (action: string) => {
     console.log(`Profile action: ${action}`);
     
     switch (action) {
       case 'profile':
-        // Открываем модальное окно профиля
         setIsProfileModalOpen(true);
         break;
       case 'settings':
-        console.log('Open app settings');
-        alert('App settings will be implemented soon!');
+        alert('Настройки приложения скоро будут доступны!');
         break;
       case 'help':
-        console.log('Open help');
-        alert('Help & Support will be implemented soon!');
+        alert('Помощь и поддержка скоро будут доступны!');
         break;
       case 'logout':
-        if (window.confirm('Are you sure you want to logout?')) {
-          console.log('User logged out');
-          alert('Logged out successfully!');
+        if (window.confirm('Вы уверены, что хотите выйти?')) {
+          try {
+            await logout();
+            navigate('/login');
+          } catch (error) {
+            console.error('Logout error:', error);
+            alert('Произошла ошибка при выходе');
+          }
         }
+        break;
+      case 'login':
+        navigate('/login');
+        break;
+      case 'register':
+        navigate('/register');
         break;
       default:
         console.log(`Unknown action: ${action}`);
@@ -319,22 +344,18 @@ const Dashboard = () => {
   };
 
   // Функция для обновления профиля
-  const handleProfileSave = (profileData: any) => {
+  const handleProfileSave = (updatedProfile: any) => {
     setProfileData(prev => ({
       ...prev,
-      ...profileData
+      ...updatedProfile
     }));
-    console.log('Profile saved:', profileData);
+    console.log('Profile saved:', updatedProfile);
   };
-
-  // Новая функция для открытия страницы профиля
+  // Функция для открытия страницы профиля
   const handleOpenProfilePage = () => {
-    // Закрываем модальное окно
     setIsProfileModalOpen(false);
-    // Переходим на страницу профиля
     navigate('/profile');
   };
-
 
   // ========== ОБРАБОТЧИКИ DRAG & DROP ==========
   const handleDragStart = (category: Category, e: React.DragEvent) => {
@@ -382,7 +403,7 @@ const Dashboard = () => {
     setDraggedCategory(null);
   };
 
-  // ========== ОБРАБОТЧИКИ КАТЕГОРИЙ ==========
+  // Обработчики категорий и задач
   const handleCreateCategory = (categoryData: any) => {
     const newCategory: Category = {
       id: Date.now(),
@@ -397,7 +418,6 @@ const Dashboard = () => {
   const handleEditCategory = (categoryData: any) => {
     if (!editingCategory) return;
 
-    // Обновляем основную коллекцию категорий
     setCategories(prevCategories => 
       prevCategories.map(category => 
         category.id === editingCategory.id
@@ -406,7 +426,6 @@ const Dashboard = () => {
       )
     );
 
-    // Обновляем droppedCategories
     setDroppedCategories(prev => 
       prev.map(dc => 
         dc.id === editingCategory.id
@@ -423,14 +442,13 @@ const Dashboard = () => {
     const category = categories.find(c => c.id === categoryId);
     if (!category) return;
 
-    if (window.confirm(`Are you sure you want to delete category "${category.name}"? All ${category.tasks.length} tasks in this category will be permanently deleted.`)) {
+    if (window.confirm(`Вы уверены, что хотите удалить категорию "${category.name}"? Все ${category.tasks.length} задач в этой категории будут удалены.`)) {
       setCategories(prev => prev.filter(c => c.id !== categoryId));
       setDroppedCategories(prev => prev.filter(dc => dc.id !== categoryId));
     }
   };
 
   const handleEditCategoryClick = (categoryId: number) => {
-    // Находим категорию в основной коллекции или в droppedCategories
     const category = categories.find(c => c.id === categoryId) || 
                     droppedCategories.find(dc => dc.id === categoryId);
     
@@ -440,7 +458,6 @@ const Dashboard = () => {
     }
   };
 
-  // ========== ОБРАБОТЧИКИ ЗАДАЧ ==========
   const handleCreateTask = (taskData: any) => {
     const newTask: Task = {
       id: Date.now(),
@@ -515,7 +532,7 @@ const Dashboard = () => {
 
     if (!task) return;
 
-    if (window.confirm(`Are you sure you want to delete task "${task.title}"?`)) {
+    if (window.confirm(`Вы уверены, что хотите удалить задачу "${task.title}"?`)) {
       setCategories(prevCategories => 
         prevCategories.map(category => 
           category.id === categoryId
@@ -543,7 +560,6 @@ const Dashboard = () => {
     }
   };
 
-  // ========== ОБРАБОТЧИКИ POPUP ==========
   const handleMouseEnter = (category: Category, e: React.MouseEvent) => {
     if (draggedCategory) return;
     
@@ -586,7 +602,6 @@ const Dashboard = () => {
     handleMouseLeave();
   };
 
-  // ========== ОБРАБОТЧИК ЗАВЕРШЕНИЯ ЗАДАЧ ==========
   const toggleTaskCompletion = (categoryId: number, taskId: number) => {
     setCategories(categories.map(category => 
       category.id === categoryId 
@@ -611,22 +626,27 @@ const Dashboard = () => {
     ));
   };
 
-
-
-  // ========== УДАЛЕНИЕ КАТЕГОРИИ ИЗ DROP ZONE ==========
   const removeDroppedCategory = (id: number) => {
     setDroppedCategories(droppedCategories.filter(cat => cat.id !== id));
   };
 
-  // ========== СТАТИСТИКА ==========
+  // Статистика
   const totalTasks = categories.reduce((sum, cat) => sum + cat.tasks.length, 0);
   const allTasks = categories.flatMap(cat => cat.tasks);
   const completedTasks = allTasks.filter(t => t.completed).length;
   const inProgressTasks = allTasks.filter(t => !t.completed && t.progress > 0).length;
 
-return (
+  if (!authChecked) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Проверка авторизации...</p>
+      </div>
+    );
+  }
+
+  return (
     <div className={`app ${darkMode ? 'dark' : ''}`}>
-      {/* Компонент конфетти */}
       <Confetti 
         isActive={showConfetti} 
         onComplete={() => setShowConfetti(false)}
@@ -642,7 +662,7 @@ return (
           setIsTaskModalOpen(true);
         }}
         onProfileAction={handleProfileAction}
-        profileData={profileData} // Передаем данные
+        profileData={profileData}
         onConfettiTrigger={handleConfettiTrigger}
       />
 
@@ -698,7 +718,6 @@ return (
             onDeleteCategory={handleDeleteCategory}
           />
 
-          {/* Модальное окно для задачи */}
           <TaskModal
             isOpen={isTaskModalOpen}
             onClose={() => {
@@ -710,7 +729,6 @@ return (
             initialData={editingTask ? editingTask.task : null}
           />
 
-          {/* Модальное окно для категории */}
           {isCategoryModalOpen && (
             <CategoryModal
               isOpen={isCategoryModalOpen}
@@ -729,27 +747,24 @@ return (
             />
           )}
 
-          {/* Модальное окно для профиля */}
-            {isProfileModalOpen && (
+          {isProfileModalOpen && (
             <ProfileModal
-                isOpen={isProfileModalOpen}
-                onClose={() => setIsProfileModalOpen(false)}
-                onSave={handleProfileSave} // Используем правильную функцию
-                onOpenProfilePage={handleOpenProfilePage}
-                initialData={profileData}
+              isOpen={isProfileModalOpen}
+              onClose={() => setIsProfileModalOpen(false)}
+              onSave={handleProfileSave}
+              onOpenProfilePage={handleOpenProfilePage}
+              initialData={profileData}
             />
-            )}
+          )}
 
-          {/* Окно аналитики */}
           {isAnalyticsOpen && (
             <Analytics
               isOpen={isAnalyticsOpen}
-              onClose={handleCloseAnalytics} // Используем обновленный обработчик
+              onClose={handleCloseAnalytics}
               categories={categories}
             />
           )}
 
-          {/* Popup при наведении на категорию */}
           {showPopup && hoveredCategory && (
             <CategoryPopup 
               category={hoveredCategory}

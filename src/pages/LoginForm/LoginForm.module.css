@@ -317,6 +317,61 @@
   margin-bottom: 0.5rem;
 }
 
+/* Стиль для общей ошибки */
+.errorAlert {
+  background-color: #fee;
+  border: 1px solid #f99;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c00;
+  font-size: 14px;
+}
+
+.errorAlert svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Обновляем стиль кнопки демо */
+.btnDemo {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btnDemo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btnDemo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btnDemo svg {
+  width: 20px;
+  height: 20px;
+}
+
 .passwordLabelRow {
   display: flex;
   justify-content: space-between;

@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore'; // Используем правильный store
 import styles from './LoginForm.module.css';
+
+interface LoginFormData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface LoginErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  
+  // ✅ Используем правильные методы из store
+  const { login: storeLogin, loading, error: storeError } = useAuthStore();
+  
+  const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
     rememberMe: false
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{email?: string; password?: string}>({});
+  
+  const [errors, setErrors] = useState<LoginErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -19,15 +36,21 @@ const LoginForm = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    if (errors[name as keyof typeof errors]) {
+    // Очищаем ошибку при изменении поля
+    if (errors[name as keyof LoginErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+    
+    // Очищаем общую ошибку при любом изменении
+    if (errors.general) {
+      setErrors(prev => ({ ...prev, general: undefined }));
     }
   };
 
   const validateForm = () => {
-    const newErrors: {email?: string; password?: string} = {};
+    const newErrors: LoginErrors = {};
     
-    if (!formData.email) {
+    if (!formData.email.trim()) {
       newErrors.email = 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Некорректный email';
@@ -48,32 +71,30 @@ const LoginForm = () => {
     
     if (!validateForm()) return;
     
-    setIsLoading(true);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Login attempt:', formData);
+      // ✅ Используем метод login из store (который вызывает API)
+      await storeLogin(formData.email, formData.password, formData.rememberMe);
+      
+      // ✅ Если успешно - переходим на dashboard
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors({ email: 'Неверный email или пароль' });
-    } finally {
-      setIsLoading(false);
+      
+    } catch (error: any) {
+      // ✅ Ошибка уже обработана в store, можно показать дополнительно
+      console.error('Login form error:', error);
+      
+      // ✅ Используем ошибку из store или создаем свою
+      const errorMessage = storeError || error.message || 'Ошибка авторизации';
+      setErrors({ general: errorMessage });
     }
   };
 
-  const handleOAuthLogin = (provider: string) => {
-    setIsLoading(true);
-    console.log(`OAuth login with ${provider}`);
-    
-    setTimeout(() => {
-      alert(`В будущем здесь будет интеграция с ${provider}`);
-      setIsLoading(false);
-    }, 1000);
-  };
+  // ✅ Убираем демо-логин, так как его нет в новом authService
+  // const handleDemoLogin = () => { ... }
 
-  const handleDemoLogin = () => {
-    navigate('/dashboard');
+  const handleOAuthLogin = (provider: string) => {
+    // Оставляем как заглушку
+    console.log(`OAuth login with ${provider} - not implemented yet`);
+    alert(`В будущем здесь будет интеграция с ${provider}`);
   };
 
   return (
@@ -112,7 +133,7 @@ const LoginForm = () => {
           <button 
             className={styles.btnBack} 
             onClick={() => navigate('/')}
-            disabled={isLoading}
+            disabled={loading}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -133,14 +154,25 @@ const LoginForm = () => {
               </p>
             </div>
 
-            {/* OAuth Providers */}
+            {/* ✅ Показываем общую ошибку если есть */}
+            {errors.general && (
+              <div className={styles.errorAlert}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{errors.general}</span>
+              </div>
+            )}
+
+            {/* OAuth Providers (опционально, можно убрать) */}
             <div className={styles.oauthSection}>
               <h3 className={styles.oauthTitle}>Быстрый вход</h3>
               <div className={styles.oauthButtons}>
                 <button 
                   className={`${styles.oauthBtn} ${styles.google}`}
                   onClick={() => handleOAuthLogin('Google')}
-                  disabled={isLoading}
+                  disabled={loading}
+                  type="button"
                 >
                   <div className={styles.oauthIcon}>
                     <svg viewBox="0 0 24 24">
@@ -156,7 +188,8 @@ const LoginForm = () => {
                 <button 
                   className={`${styles.oauthBtn} ${styles.github}`}
                   onClick={() => handleOAuthLogin('GitHub')}
-                  disabled={isLoading}
+                  disabled={loading}
+                  type="button"
                 >
                   <div className={styles.oauthIcon}>
                     <svg viewBox="0 0 24 24">
@@ -186,7 +219,8 @@ const LoginForm = () => {
                   onChange={handleChange}
                   className={`${styles.formInput} ${errors.email ? styles.error : ''}`}
                   placeholder="your@email.com"
-                  disabled={isLoading}
+                  disabled={loading}
+                  autoComplete="email"
                 />
                 {errors.email && (
                   <div className={styles.errorMessage}>{errors.email}</div>
@@ -198,13 +232,12 @@ const LoginForm = () => {
                   <label htmlFor="password" className={styles.formLabel}>
                     Пароль
                   </label>
-                  <button 
-                    type="button" 
+                  <Link 
+                    to="/forgot-password" // ✅ Ссылка на страницу восстановления
                     className={styles.forgotPassword}
-                    onClick={() => alert('Функция восстановления пароля скоро будет доступна')}
                   >
                     Забыли пароль?
-                  </button>
+                  </Link>
                 </div>
                 <input
                   type="password"
@@ -214,7 +247,8 @@ const LoginForm = () => {
                   onChange={handleChange}
                   className={`${styles.formInput} ${errors.password ? styles.error : ''}`}
                   placeholder="••••••••"
-                  disabled={isLoading}
+                  disabled={loading}
+                  autoComplete="current-password"
                 />
                 {errors.password && (
                   <div className={styles.errorMessage}>{errors.password}</div>
@@ -228,7 +262,7 @@ const LoginForm = () => {
                     name="rememberMe"
                     checked={formData.rememberMe}
                     onChange={handleChange}
-                    disabled={isLoading}
+                    disabled={loading}
                     className={styles.checkboxInput}
                   />
                   <span className={styles.checkboxCustom}></span>
@@ -239,9 +273,9 @@ const LoginForm = () => {
               <button 
                 type="submit" 
                 className={styles.btnSubmit}
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <span>Вход...</span>
                     <div className={styles.loadingSpinner}></div>
@@ -252,21 +286,20 @@ const LoginForm = () => {
               </button>
             </form>
 
-            {/* Demo Login */}
+            {/* ✅ Убираем демо-секцию (если нужно оставить - перенаправляем на регистрацию) */}
             <div className={styles.demoSection}>
               <div className={styles.divider}>
-                <span className={styles.dividerText}>или</span>
+                <span className={styles.dividerText}>Нет аккаунта?</span>
               </div>
-              <button 
+              <Link 
+                to="/register"
                 className={styles.btnDemo}
-                onClick={handleDemoLogin}
-                disabled={isLoading}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
-                <span>Попробовать демо</span>
-              </button>
+                <span>Создать аккаунт</span>
+              </Link>
             </div>
 
             {/* Registration Link */}
@@ -283,19 +316,13 @@ const LoginForm = () => {
             <div className={styles.termsSection}>
               <p className={styles.termsText}>
                 Нажимая "Войти", вы соглашаетесь с{' '}
-                <button 
-                  className={styles.linkTerms}
-                  onClick={() => alert('Условия использования скоро будут доступны')}
-                >
+                <Link to="/terms" className={styles.linkTerms}>
                   Условиями использования
-                </button>{' '}
+                </Link>{' '}
                 и{' '}
-                <button 
-                  className={styles.linkTerms}
-                  onClick={() => alert('Политика конфиденциальности скоро будет доступна')}
-                >
+                <Link to="/privacy" className={styles.linkTerms}>
                   Политикой конфиденциальности
-                </button>
+                </Link>
               </p>
             </div>
           </div>
