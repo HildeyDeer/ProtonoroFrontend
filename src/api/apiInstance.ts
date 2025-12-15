@@ -13,7 +13,7 @@ const apiInstance: AxiosInstance = axios.create({
 // ✅ Добавьте интерцептор для запросов
 apiInstance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token'); // Или из вашего хранилища
+        const token = localStorage.getItem('SuperSecretKeyForJWT32CharactersMinimum'); // Или из вашего хранилища
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
