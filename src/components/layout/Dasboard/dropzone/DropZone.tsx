@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MoreVertical, X, Clock, CheckCircle, Settings } from 'lucide-react';
 import styles from './DropZone.module.css';
-import type { DroppedCategory, Task } from '../../../types';
+import type { DroppedCategory, Task } from '../../../../types';
 
 interface DropZoneProps {
   droppedCategories: DroppedCategory[];
@@ -91,8 +91,8 @@ const DropZone = ({
       {droppedCategories.length === 0 ? (
         <div className={styles.dropPlaceholder}>
           <div className={styles.dropIcon}>📁</div>
-          <h3>Drag categories here</h3>
-          <p>Drag categories from the sidebar to display their tasks here</p>
+          <h3>Перетащите категории сюда</h3>
+          <p>Перетащите категории из боковой панели, чтобы отобразить их задачи здесь.</p>
         </div>
       ) : (
         <div className={styles.droppedCategoriesGrid}>
@@ -113,7 +113,7 @@ const DropZone = ({
                   <button 
                     className={styles.categorySettingsBtn}
                     onClick={(e) => handleCategoryMenuClick(category.id, e)}
-                    title="Category settings"
+                    title="Настройки Категории"
                   >
                     <Settings size={16} />
                   </button>
@@ -126,7 +126,7 @@ const DropZone = ({
                           setShowCategoryMenuId(null);
                         }}
                       >
-                        ✏️ Edit Category
+                        ✏️ Изменить Категорию
                       </button>
                       <button 
                         className={styles.deleteBtn}
@@ -137,7 +137,7 @@ const DropZone = ({
                           }
                         }}
                       >
-                        🗑️ Delete Category
+                        🗑️ Удалить Категорию
                       </button>
                     </div>
                   )}
@@ -189,7 +189,7 @@ const DropZone = ({
                                 onTaskAction(category.id, task, 'edit');
                                 setShowTaskMenu(null);
                               }}>
-                                ✏️ Edit Task
+                                ✏️ Изменить Задачу
                               </button>
                               <button 
                                 className={styles.deleteBtn}
@@ -198,7 +198,7 @@ const DropZone = ({
                                   setShowTaskMenu(null);
                                 }}
                               >
-                                🗑️ Delete Task
+                                🗑️ Удалить Задачу
                               </button>
                             </div>
                           )}
@@ -236,12 +236,12 @@ const DropZone = ({
                           {task.completed ? (
                             <>
                               <CheckCircle size={16} />
-                              Completed
+                              Завершено
                             </>
                           ) : (
                             <>
                               <Clock size={16} />
-                              Mark Complete
+                              Отметить как завершенное
                             </>
                           )}
                         </button>

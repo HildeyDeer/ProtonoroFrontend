@@ -1,7 +1,7 @@
 import { Play, Pause, RotateCcw, Clock, Target } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import styles from './TimerSection.module.css';
-import type { TimerState, TimerMode } from '../../../types/index';
+import type { TimerState, TimerMode } from '../../../../types/index';
 
 interface TimerSectionProps {
   time: number;
@@ -43,18 +43,18 @@ const TimerSection = ({
   // Конфигурация режимов
   const modeConfig = {
     pomodoro: {
-      title: 'FOCUS TIME',
-      label: 'DEEP WORK SESSION',
+      title: 'Время фокусировки',
+      label: 'СКОНЦЕНТРИРОВАННАЯ РАБОТА',
       emoji: '🍅'
     },
     shortBreak: {
-      title: 'SHORT BREAK',
-      label: 'QUICK RELAXATION',
+      title: 'КРАТКИЙ ОТДЫХ',
+      label: 'БЫСТРОЕ РАСЛАБЛЕНИЕ',
       emoji: '☕'
     },
     longBreak: {
-      title: 'LONG BREAK',
-      label: 'EXTENDED REST',
+      title: 'ДОЛГИЙ ОТДЫХ',
+      label: 'ПРОДОЛЖИТЕЛЬНЫЙ ОТДЫХ',
       emoji: '🌴'
     }
   };
@@ -73,28 +73,28 @@ const TimerSection = ({
         {/* Заголовок с выбором режима - ВВЕРХУ */}
         <div className={styles.timerHeader}>
           <div className={styles.timerModeSelector}>
-            <h3>Timer Mode</h3>
+            <h3>Режимы таймера</h3>
             <div className={styles.modeButtons}>
               <button 
                 className={`${styles.modeBtn} ${mode === 'pomodoro' ? styles.active : ''}`}
                 onClick={() => handleModeChangeClick('pomodoro')}
-                title="25 minutes of focused work"
+                title="сконцентрированная работа"
               >
-                🍅 Pomodoro
+                🍅 Помодоро
               </button>
               <button 
                 className={`${styles.modeBtn} ${mode === 'shortBreak' ? styles.active : ''}`}
                 onClick={() => handleModeChangeClick('shortBreak')}
-                title="5 minutes break"
+                title="небольшой перерыв"
               >
-                ☕ Short Break
+                ☕Разминка
               </button>
               <button 
                 className={`${styles.modeBtn} ${mode === 'longBreak' ? styles.active : ''}`}
                 onClick={() => handleModeChangeClick('longBreak')}
-                title="15 minutes break"
+                title="длинный перерыв"
               >
-                🌴 Long Break
+                🌴 Длинный перерыв
               </button>
             </div>
           </div>
@@ -118,7 +118,7 @@ const TimerSection = ({
           </span>
           <span>
             <Target size={14} />
-            Completed: {completedPomodoros}
+            Завершенные задачи: {completedPomodoros}
           </span>
         </div>
 
@@ -132,12 +132,12 @@ const TimerSection = ({
             {timerState === 'running' ? (
               <>
                 <Pause size={16} />
-                Pause Timer
+                Пауза
               </>
             ) : (
               <>
                 <Play size={16} />
-                Start Timer
+                Старт
               </>
             )}
           </button>
@@ -146,7 +146,7 @@ const TimerSection = ({
             onClick={onReset}
           >
             <RotateCcw size={16} />
-            Reset Timer
+            Сброс
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, BarChart3, TrendingUp, Calendar, Target, CheckCircle, Clock, Award, Zap } from 'lucide-react';
 import styles from './Analytics.module.css';
-import type { Category } from '../../../types';
+import type { Category } from '../../../../types';
 
 interface AnalyticsProps {
   isOpen: boolean;
@@ -199,7 +199,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
         <div className={styles.analyticsHeader}>
           <div className={styles.headerLeft}>
             <BarChart3 size={24} />
-            <h2>Analytics Dashboard</h2>
+            <h2>Доска Аналитики</h2>
           </div>
           <button className={styles.closeButton} onClick={onClose}>
             <X size={20} />
@@ -217,7 +217,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                   </div>
                   <div className={styles.statContent}>
                     <h3>{analyticsData.totalTasks}</h3>
-                    <p>Total Tasks</p>
+                    <p>Всего Задач</p>
                   </div>
                 </div>
 
@@ -227,7 +227,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                   </div>
                   <div className={styles.statContent}>
                     <h3>{analyticsData.completedTasks}</h3>
-                    <p>Completed</p>
+                    <p>Завершено</p>
                   </div>
                 </div>
 
@@ -237,7 +237,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                   </div>
                   <div className={styles.statContent}>
                     <h3>{analyticsData.completionRate}%</h3>
-                    <p>Completion Rate</p>
+                    <p>Рейтинг завершения</p>
                   </div>
                 </div>
 
@@ -247,7 +247,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                   </div>
                   <div className={styles.statContent}>
                     <h3>{analyticsData.userScore}/100</h3>
-                    <p>User Score</p>
+                    <p>Рейтинг пользователя</p>
                   </div>
                 </div>
               </div>
@@ -256,7 +256,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
               <div className={styles.chartsGrid}>
                 {/* График завершения по категориям */}
                 <div className={styles.chartCard}>
-                  <h3>Completion by Category</h3>
+                  <h3>Заврешния по категории</h3>
                   <div className={styles.categoryChart}>
                     {Object.entries(analyticsData.taskCompletionByCategory).map(([category, percentage]) => {
                       const categoryObj = categories.find(c => c.name === category);
@@ -293,7 +293,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                     alignItems: 'center', 
                     marginBottom: '1.5rem' 
                   }}>
-                    <h3>Completion Time Distribution</h3>
+                    <h3>Распределение времени завершения</h3>
                     <button 
                       onClick={() => setShowAllHours(!showAllHours)}
                       style={{
@@ -348,7 +348,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                                 transform: `translateX(-50%) translateY(${isHovered || isActive ? 0 : '10px'})`
                               }}
                             >
-                              {count} task{count !== 1 ? 's' : ''} completed at {formatHourLabel(hour)}
+                              {count} task{count !== 1 ? 's' : ''} Завершено в {formatHourLabel(hour)}
                             </div>
                             
                             <div 
@@ -370,24 +370,24 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
                   <div className={styles.timeLegend}>
                     <div className={styles.legendItem}>
                       <div className={styles.legendColor} style={{ backgroundColor: '#3b82f6' }} />
-                      <span>Completed Tasks</span>
+                      <span>Завершенные задачи</span>
                     </div>
                     <div className={styles.legendItem}>
                       <div className={styles.legendColor} style={{ backgroundColor: '#ef4444' }} />
-                      <span>Current Hour ({getCurrentHour()}:00)</span>
+                      <span>Текущий час ({getCurrentHour()}:00)</span>
                     </div>
                     <div className={styles.legendItem}>
                       <Zap size={12} />
-                      <span>Peak: {analyticsData.peakProductivityHours.join(', ')}</span>
+                      <span>Пик: {analyticsData.peakProductivityHours.join(', ')}</span>
                     </div>
                   </div>
                   
                   <div className={styles.peakHours}>
                     <Clock size={14} />
-                    <span>Average completion time: {analyticsData.averageCompletionTime}</span>
+                    <span>Среднее время завершения: {analyticsData.averageCompletionTime}</span>
                     {activeHour !== null && (
                       <span style={{ marginLeft: 'auto', color: 'var(--primary-color)', fontWeight: 500 }}>
-                        Selected: {formatHourLabel(activeHour)}
+                        Выбрано: {formatHourLabel(activeHour)}
                       </span>
                     )}
                   </div>
@@ -397,34 +397,34 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
               {/* Дополнительная статистика */}
               <div className={styles.additionalStats}>
                 <div className={styles.infoCard}>
-                  <h3>Performance Insights</h3>
+                  <h3>Анализ Производительности</h3>
                   <div className={styles.insights}>
                     <div className={styles.insightItem}>
                       <Calendar size={16} />
                       <div>
-                        <p className={styles.insightTitle}>Average Completion Time</p>
+                        <p className={styles.insightTitle}>Среднее время завершения</p>
                         <p className={styles.insightValue}>{analyticsData.averageCompletionTime}</p>
                       </div>
                     </div>
                     <div className={styles.insightItem}>
                       <TrendingUp size={16} />
                       <div>
-                        <p className={styles.insightTitle}>Current Streak</p>
-                        <p className={styles.insightValue}>{analyticsData.streaks.current} days</p>
+                        <p className={styles.insightTitle}>Текущий Страйк</p>
+                        <p className={styles.insightValue}>{analyticsData.streaks.current} дней</p>
                       </div>
                     </div>
                     <div className={styles.insightItem}>
                       <Award size={16} />
                       <div>
-                        <p className={styles.insightTitle}>Longest Streak</p>
-                        <p className={styles.insightValue}>{analyticsData.streaks.longest} days</p>
+                        <p className={styles.insightTitle}>Самый Долгий страйк</p>
+                        <p className={styles.insightValue}>{analyticsData.streaks.longest} дней</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.infoCard}>
-                  <h3>Progress Breakdown</h3>
+                  <h3>Распределение Прогресса</h3>
                   <div className={styles.progressBreakdown}>
                     {Object.entries(analyticsData.taskCompletionByCategory).map(([category, percentage]) => {
                       const categoryObj = categories.find(c => c.name === category);
@@ -464,7 +464,7 @@ const Analytics = ({ isOpen, onClose, categories }: AnalyticsProps) => {
           ) : (
             <div className={styles.loading}>
               <BarChart3 size={48} />
-              <p>Loading analytics data...</p>
+              <p>Загрузка Аналитики...</p>
             </div>
           )}
         </div>

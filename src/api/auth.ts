@@ -27,6 +27,12 @@ interface RegisterBackendError {
         description: string;
     }>;
 }
+interface FullNameResponse {
+    fullName: string;
+    userId: string;
+    userName: string;
+    email: string;
+}
 
 // Наши интерфейсы
 interface TokenResponse {
@@ -169,51 +175,63 @@ export const login = async (
             refresh: data.refreshToken || ''
         };
 
-        // 🔐 сохраняем токены
+        console.log('🔐 Tokens received');
+
+        // 🔐 СОХРАНЯЕМ ТОКЕНЫ И ОБНОВЛЯЕМ API INSTANCE
         setAuthTokens(tokens.access, tokens.refresh, rememberMe);
 
         // ============================
-        // 👤 ПОЛУЧЕНИЕ ПРОФИЛЯ
+        // 👤 ПОЛУЧАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ СРАЗУ
         // ============================
         let userData: UserData;
 
         try {
-            const profileResponse = await apiInstance.get('api/profile/get');
-
-            const profile = profileResponse.data;
-
-            console.log('👤 User profile response:', profile);
-
+            console.log('📡 Getting user profile...');
+            
+            // Теперь apiInstance уже имеет правильный токен
+            const profileResponse = await apiInstance.get<{
+                fullName: string;
+                userId: string;
+                userName: string;
+                email: string;
+            }>('api/auth/fullname');
+            
+            console.log('👤 User profile response:', profileResponse.data);
+            
             userData = {
-                id: profile.id,
-                email: profile.email,
-                username: profile.username,
-                full_name: profile.full_name
+                id: profileResponse.data.userId,
+                email: profileResponse.data.email,
+                username: profileResponse.data.userName,
+                full_name: profileResponse.data.fullName || ''
             };
-
-            console.log('✅ User data received from backend:', userData);
-
+            
+            console.log('✅ User data received:', userData);
+            
         } catch (profileError) {
-            console.warn(
-                '⚠️ Failed to load user profile, using fallback',
-                profileError
-            );
-
+            console.warn('⚠️ Failed to load user profile, using email-based data:', profileError);
+            
+            // Используем данные из email как запасной вариант
             userData = {
                 id: `temp-${Date.now()}`,
-                email,
-                username: email.split('@')[0]
+                email: email,
+                username: email.split('@')[0],
+                full_name: ''
             };
         }
 
         // ============================
-        // 💾 СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЯ
+        // 💾 СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЬСКИХ ДАННЫХ
         // ============================
         const allUserData = transformToAllUserData(
             userData,
             tokens.access,
             rememberMe
         );
+
+        console.log('💾 Saving user data to cookies:', {
+            hasFullName: !!userData.full_name,
+            username: userData.username
+        });
 
         Cookies.set(COOKIE_KEYS.USER_DATA, JSON.stringify(allUserData), {
             expires: rememberMe ? TOKEN_EXPIRY.REMEMBER : TOKEN_EXPIRY.ACCESS,
@@ -229,18 +247,25 @@ export const login = async (
             });
         }
 
+        // Обновляем стор
         updateAuthStore(userData, tokens.access, rememberMe);
+
+        const storeState = useAuthStore.getState();
+        console.log('🏪 Store updated:', {
+            hasUser: !!storeState.allUserData,
+            user: storeState.allUserData
+        });
 
         useAuthStore.getState().setLoading(false);
 
-        console.log('🎉 Login completed successfully');
+        console.log('🎉 Login completed successfully!');
 
-        return createApiResponse<LoginResponse>(
-            { tokens, user: userData },
-            null,
-            status,
-            true
-        );
+        const response: LoginResponse = {
+            tokens: tokens,
+            user: userData
+        };
+
+        return createApiResponse<LoginResponse>(response, null, status, true);
 
     } catch (error) {
         console.error('🔥 Login error:', error);
@@ -248,30 +273,88 @@ export const login = async (
         useAuthStore.getState().setLoading(false);
 
         let errorMessage = 'Ошибка авторизации';
+        let statusCode = 500;
 
         if (axios.isAxiosError(error)) {
-            const statusCode = error.response?.status || 500;
-            const backendData = error.response?.data as any;
+            console.error('📡 Axios error details:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                config: {
+                    url: error.config?.url,
+                    method: error.config?.method
+                }
+            });
 
-            errorMessage =
-                backendData?.Message ||
-                backendData?.message ||
-                errorMessage;
+            statusCode = error.response?.status || 500;
+            const errorData = error.response?.data as BackendResponse<string> | string;
 
-            return createApiResponse<LoginResponse>(
-                null,
-                errorMessage,
-                statusCode,
-                false
-            );
+            if (statusCode === 401) {
+                errorMessage = 'Неверный email или пароль';
+            } else if (statusCode === 400) {
+                errorMessage = 'Некорректный запрос';
+            } else if (statusCode === 404) {
+                errorMessage = 'Сервер авторизации не найден';
+            } else if (statusCode === 500) {
+                errorMessage = 'Внутренняя ошибка сервера';
+            }
+
+            if (typeof errorData === 'object' && errorData.Message) {
+                errorMessage = errorData.Message;
+            } else if (typeof errorData === 'string') {
+                errorMessage = errorData;
+            }
+        } else if (error instanceof Error) {
+            errorMessage = error.message;
         }
 
-        return createApiResponse<LoginResponse>(
-            null,
-            errorMessage,
-            500,
-            false
-        );
+        console.log('📋 Error message:', errorMessage);
+        return createApiResponse<LoginResponse>(null, errorMessage, statusCode, false);
+    }
+};
+
+// ========== ФУНКЦИЯ ДЛЯ ЗАГРУЗКИ ПРОФИЛЯ ==========
+export const fetchUserProfile = async (): Promise<ApiResponse<UserData>> => {
+    try {
+        console.log('🔄 Loading user profile...');
+        
+        // Используем обычный apiInstance - он уже настроен с интерцептором для токенов
+        const { data, status } = await apiInstance.get<{
+            fullName: string;
+            userId: string;
+            userName: string;
+            email: string;
+        }>('api/auth/fullname');
+        
+        console.log('✅ Profile loaded:', data);
+        
+        const userData: UserData = {
+            id: data.userId,
+            email: data.email,
+            username: data.userName,
+            full_name: data.fullName || ''
+        };
+        
+        return createApiResponse<UserData>(userData, null, status, true);
+        
+    } catch (error) {
+        console.error('Failed to load user profile:', error);
+        
+        let errorMessage = 'Ошибка загрузки профиля';
+        let statusCode = 500;
+        
+        if (axios.isAxiosError(error)) {
+            statusCode = error.response?.status || 500;
+            const errorData = error.response?.data as { error?: string };
+            
+            if (statusCode === 401) {
+                errorMessage = 'Требуется авторизация';
+            } else if (errorData?.error) {
+                errorMessage = errorData.error;
+            }
+        }
+        
+        return createApiResponse<UserData>(null, errorMessage, statusCode, false);
     }
 };
 
@@ -525,6 +608,11 @@ export const setAuthTokens = (access_token: string, refresh_token: string, remem
         secure: true,
         sameSite: 'strict'
     });
+    
+    // ✅ ВАЖНО: Обновляем заголовки apiInstance
+    if (apiInstance.defaults.headers) {
+        apiInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+    }
 };
 
 export const getAuthTokens = (): { accessToken: string | undefined; refreshToken: string | undefined } => {

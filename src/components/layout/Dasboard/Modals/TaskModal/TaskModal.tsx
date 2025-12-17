@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Calendar, Clock } from 'lucide-react';
 import styles from './TaskModal.module.css';
-import type { Category } from '../../../../types';
+import type { Category } from '../../../../../types';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -117,7 +117,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, categories, initialData }: TaskM
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="progress">Progress (%)</label>
+              <label htmlFor="progress">Прогресс (%)</label>
               <div className={styles.progressInput}>
                 <input
                   id="progress"

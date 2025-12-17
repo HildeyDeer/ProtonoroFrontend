@@ -1201,5 +1201,7 @@ body.dragging .category-popup {
   .dropped-categories-grid {
     grid-template-columns: 1fr;
   }
+
+  
   
 }

@@ -1,0 +1,165 @@
+/* ProfilePopup.module.css */
+.profilePopup {
+  position: absolute;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+.popupContent {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  width: 280px;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profileInfo {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-tertiary);
+}
+
+.profileAvatarLarge {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.profileDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.profileDetails h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileUsername {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileEmail {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileRole {
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 0.25rem;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.demoBadge {
+  font-size: 0.7rem;
+  color: var(--warning-color);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+.guestBadge {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  background: rgba(100, 116, 139, 0.1);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0.5rem 0;
+}
+
+.menuItem {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.menuItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.menuItem span {
+  flex: 1;
+  text-align: left;
+}
+
+.menuItemLogout {
+  color: var(--danger-color);
+}
+
+.menuItemLogout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profilePopup {
+    position: fixed;
+    right: 1rem;
+    left: 1rem;
+    top: auto;
+    bottom: 1rem;
+    width: auto;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .popupContent {
+    width: 100%;
+  }
+}

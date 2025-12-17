@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Palette } from 'lucide-react';
 import styles from './CategoryModal.module.css';
-import type { Category } from '../../../../types';
+import type { Category } from '../../../../../types';
 
 interface CategoryModalProps {
   isOpen: boolean;

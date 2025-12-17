@@ -1,6 +1,6 @@
 import { GripVertical } from 'lucide-react';
 import styles from './CategoryPopup.module.css';
-import type { Category } from '../../../../types';
+import type { Category } from '../../../../../types';
 
 interface CategoryPopupProps {
   category: Category;

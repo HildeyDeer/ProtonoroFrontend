@@ -1,0 +1,309 @@
+/* PrivacyPolicyModal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--bg-primary);
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.closeButton {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.modalContent {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(80vh - 80px);
+}
+
+/* Специфичные стили для контента политики конфиденциальности */
+.privacyContent {
+  line-height: 1.6;
+}
+
+.privacyContent h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+}
+
+.privacyContent h3:first-child {
+  margin-top: 0;
+}
+
+.privacyContent p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* Стили для списков в политике конфиденциальности */
+.privacyContent ul {
+  margin: 0.5rem 0 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.privacyContent ul li {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.privacyContent ul li::before {
+  content: "•";
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.25rem;
+  position: absolute;
+  left: 0;
+  top: -2px;
+}
+
+.privacySection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border-radius: 0.75rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.privacySection h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.privacySection ul {
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.privacySection ul li {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.privacySection ul li::before {
+  content: "✓";
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 0.875rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.updateDate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.modalFooter {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.acceptButton {
+  padding: 0.75rem 2rem;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.acceptButton:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Стилизация скроллбара */
+.modalContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Темная тема */
+:global(.dark-mode) .modal {
+  background: var(--bg-secondary);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+:global(.dark-mode) .modalHeader {
+  background: var(--bg-secondary);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .closeButton {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-tertiary);
+}
+
+:global(.dark-mode) .closeButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+:global(.dark-mode) .privacySection {
+  background: rgba(255, 255, 255, 0.03);
+  border-left-color: var(--primary-color);
+}
+
+:global(.dark-mode) .modalContent::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .modalContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .modal {
+    margin: 1rem;
+    max-height: 85vh;
+  }
+  
+  .modalHeader {
+    padding: 1rem;
+  }
+  
+  .modalContent {
+    padding: 1rem;
+    max-height: calc(85vh - 60px);
+  }
+  
+  .modalHeader h2 {
+    font-size: 1.125rem;
+  }
+  
+  .privacyContent h3 {
+    font-size: 0.9375rem;
+    margin-top: 1.25rem;
+  }
+  
+  .privacySection {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+}

@@ -25,4 +25,19 @@ export type DroppedCategory = {
   color: string;
   tasks: Task[];
   position: number;
+
+  
 };
+
+export interface TimerSettings {
+  pomodoro: number;
+  shortBreak: number;
+  longBreak: number;
+  autoStartBreaks: boolean;
+  autoStartPomodoros: boolean;
+  longBreakInterval: number;
+  notifications: boolean;
+  sound: boolean;
+  darkMode: boolean;
+};
+

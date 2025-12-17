@@ -1,17 +1,19 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Убрал useCallback
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../api/auth';
-import Header from '../../components/layout/Header/Header';
-import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import TimerSection from '../../components/layout/timer/TimerSection';
-import DropZone from '../../components/layout/dropzone/DropZone';
-import CategoryPopup from '../../components/layout/Modals/CategoryPopup/CategoryPopup';
-import CategoryModal from '../../components/layout/Modals/CategoryModal/CategoryModal';
-import TaskModal from '../../components/layout/Modals/TaskModal/TaskModal';
-import ProfileModal from '../../components/layout/Modals/ProfileModal/ProfileModal';
-import Analytics from '../../components/layout/Analytics/Analytics';
-import Confetti from '../../components/layout/Confetti/Confetti';
-import type { Category, TimerState, TimerMode, DroppedCategory, Task } from '../../types';
+import Header from '../../components/layout/Dasboard/Header/Header';
+import ProfilePopup from '../../components/layout/Dasboard/Modals/ProfilePopup/ProfilePopup';
+import Sidebar from '../../components/layout/Dasboard/Sidebar/Sidebar';
+import TimerSection from '../../components/layout/Dasboard/timer/TimerSection';
+import DropZone from '../../components/layout/Dasboard/dropzone/DropZone';
+import CategoryPopup from '../../components/layout/Dasboard/Modals/CategoryPopup/CategoryPopup';
+import CategoryModal from '../../components/layout/Dasboard/Modals/CategoryModal/CategoryModal';
+import TaskModal from '../../components/layout/Dasboard/Modals/TaskModal/TaskModal';
+import ProfileModal from '../../components/layout/Dasboard/Modals/ProfileModal/ProfileModal';
+import SettingsModal from '../../components/layout/Dasboard/Modals/SettingsModal/SettingsModal';
+import Analytics from '../../components/layout/Dasboard/Analytics/Analytics';
+import Confetti from '../../components/layout/Dasboard/Confetti/Confetti';
+import type { Category, TimerState, TimerMode, DroppedCategory, Task, TimerSettings } from '../../types';
 import '../../styles/App.css';
 
 const Dashboard = () => {
@@ -64,7 +66,24 @@ const Dashboard = () => {
 
   // Состояния компонента
   const [showConfetti, setShowConfetti] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  // ✅ СОСТОЯНИЯ ДЛЯ НАСТРОЕК
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [timerSettings, setTimerSettings] = useState({
+    pomodoro: 25,      // 25 минут
+    shortBreak: 5,     // 5 минут
+    longBreak: 15,     // 15 минут
+    autoStartBreaks: true,
+    autoStartPomodoros: true,
+    longBreakInterval: 4, // 4 помодоро до длинного перерыва
+    notifications: true,
+    sound: true,
+    darkMode: true,
+  });
+
+  
+  // ✅ ТЕМНАЯ ТЕМА ПО УМОЛЧАНИЮ
+  const [darkMode, setDarkMode] = useState(timerSettings.darkMode);
+  
   const [timerMode, setTimerMode] = useState<TimerMode>('pomodoro');
   const [time, setTime] = useState(25 * 60);
   const [timerState, setTimerState] = useState<TimerState>('stopped');
@@ -78,6 +97,17 @@ const Dashboard = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [profilePopupPosition, setProfilePopupPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+  }>({ 
+    x: 0, 
+    y: 0, 
+    width: 0 
+  });
+  
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   
   const [editingTask, setEditingTask] = useState<{ categoryId: number; task: Task } | null>(null);
@@ -99,37 +129,6 @@ const Dashboard = () => {
     username: null as string | null
   });
 
-  // Обновляем данные профиля при изменении user
-  useEffect(() => {
-    if (user) {
-      // ✅ ПРАВИЛЬНОЕ ФОРМИРОВАНИЕ ИМЕНИ
-      const userFullName = user.full_name || user.fullName || '';
-      const userEmail = user.email || '';
-      const userName = user.username || userEmail.split('@')[0] || 'Пользователь';
-      
-      setProfileData({
-        name: userFullName || userName, // Отображаем полное имя, если есть
-        email: userEmail,
-        role: 'Пользователь',
-        full_name: userFullName || null,
-        username: userName
-      });
-      
-      console.log('Profile data updated:', {
-        full_name: userFullName,
-        username: userName,
-        email: userEmail
-      });
-    } else {
-      setProfileData({
-        name: 'Гость',
-        email: 'Войдите в аккаунт',
-        role: 'Гость',
-        full_name: null,
-        username: null
-      });
-    }
-  }, [user]);
 
   const [activeTab, setActiveTab] = useState<'tasks' | 'analytics'>('tasks');
   
@@ -161,7 +160,36 @@ const Dashboard = () => {
     } else {
       document.body.classList.remove('dark-mode');
     }
+    
+    // Сохраняем настройку в timerSettings
+    setTimerSettings(prev => ({
+      ...prev,
+      darkMode
+    }));
   }, [darkMode]);
+
+  // Загрузка настроек из localStorage
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('timerSettings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setTimerSettings(parsedSettings);
+        setDarkMode(parsedSettings.darkMode);
+        
+        // Применяем настройки времени
+        if (timerMode === 'pomodoro') {
+          setTime(parsedSettings.pomodoro * 60);
+        } else if (timerMode === 'shortBreak') {
+          setTime(parsedSettings.shortBreak * 60);
+        } else if (timerMode === 'longBreak') {
+          setTime(parsedSettings.longBreak * 60);
+        }
+      } catch (error) {
+        console.error('Error loading settings from localStorage:', error);
+      }
+    }
+  }, []);
 
   // Логика таймера
   useEffect(() => {
@@ -197,28 +225,61 @@ const Dashboard = () => {
     }, 3000);
   };
 
+  // Функция для воспроизведения звука завершения
+  const playTimerSound = () => {
+    if (!timerSettings.sound) return;
+    
+    try {
+      const audio = new Audio('src/Extra/Sounds/timer-complete.mp3'); // Добавьте звуковой файл
+      audio.play().catch(e => console.warn('Audio playback failed:', e));
+    } catch (error) {
+      console.warn('Sound playback error:', error);
+    }
+  };
+  // Функция для показа уведомления
+  const showTimerNotification = () => {
+    if (!timerSettings.notifications || !('Notification' in window)) return;
+    
+    if (Notification.permission === 'granted') {
+      new Notification('Таймер завершен!', {
+        body: timerMode === 'pomodoro' ? 'Время для перерыва!' : 'Время работать!',
+        icon: 'src/Extra/Icons/pomodoro.png'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          showTimerNotification();
+        }
+      });
+    }
+  };
+
   // Функция для обработки завершения таймера
   const handleTimerComplete = () => {
     setTimerState('stopped');
+    playTimerSound();
+    showTimerNotification();
     
     if (timerMode === 'pomodoro') {
       setCompletedPomodoros(prev => prev + 1);
       
-      if (completedPomodoros % 4 === 3) {
+      // Используем настройку longBreakInterval
+      if (completedPomodoros % timerSettings.longBreakInterval === timerSettings.longBreakInterval - 1) {
         setTimeout(() => {
           setTimerMode('longBreak');
-          setTime(15 * 60);
+          setTime(timerSettings.longBreak * 60); // Используем настройки
         }, 1000);
       } else {
         setTimeout(() => {
           setTimerMode('shortBreak');
-          setTime(5 * 60);
+          setTime(timerSettings.shortBreak * 60); // Используем настройки
         }, 1000);
       }
+      
     } else {
       setTimeout(() => {
         setTimerMode('pomodoro');
-        setTime(25 * 60);
+        setTime(timerSettings.pomodoro * 60); // Используем настройки
       }, 1000);
     }
   };
@@ -230,13 +291,13 @@ const Dashboard = () => {
     
     switch (mode) {
       case 'pomodoro':
-        setTime(25 * 60);
+        setTime(timerSettings.pomodoro * 60);
         break;
       case 'shortBreak':
-        setTime(5 * 60);
+        setTime(timerSettings.shortBreak * 60);
         break;
       case 'longBreak':
-        setTime(15 * 60);
+        setTime(timerSettings.longBreak * 60);
         break;
     }
   };
@@ -259,13 +320,13 @@ const Dashboard = () => {
     
     switch (timerMode) {
       case 'pomodoro':
-        setTime(25 * 60);
+        setTime(timerSettings.pomodoro * 60);
         break;
       case 'shortBreak':
-        setTime(5 * 60);
+        setTime(timerSettings.shortBreak * 60);
         break;
       case 'longBreak':
-        setTime(15 * 60);
+        setTime(timerSettings.longBreak * 60);
         break;
     }
   };
@@ -307,55 +368,208 @@ const Dashboard = () => {
     setIsAnalyticsOpen(false);
   };
 
-  // ✅ ОБНОВЛЕННЫЕ ОБРАБОТЧИКИ ПРОФИЛЯ
+  // ✅ ОТКРЫТИЕ ПОПАПА ПРОФИЛЯ С ПРАВИЛЬНОЙ ПОЗИЦИЕЙ
+  const openProfilePopup = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const buttonRect = event.currentTarget.getBoundingClientRect();
+    setProfilePopupPosition({
+      x: buttonRect.left,
+      y: buttonRect.bottom,
+      width: buttonRect.width
+    });
+    setShowProfilePopup(true);
+  };
+
+  // ✅ ЗАКРЫТИЕ ПОПАПА ПРОФИЛЯ
+  const closeProfilePopup = () => {
+    setShowProfilePopup(false);
+  };
+  
+  // ✅ ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПОЗИЦИОНИРОВАНИЯ ПОПАПА
+  const getProfilePopupPosition = () => ({
+    top: profilePopupPosition.y + 8,
+    right: window.innerWidth - profilePopupPosition.x - profilePopupPosition.width
+  });
+  
+  // ✅ ОБНОВЛЯЕМ ДАННЫЕ ПРОФИЛЯ ПРИ ИЗМЕНЕНИИ ПОЛЬЗОВАТЕЛЯ
+  useEffect(() => {
+    if (user) {
+      // ✅ ПРАВИЛЬНОЕ ФОРМИРОВАНИЕ ИМЕНИ ИЗ ДАННЫХ ПОЛЬЗОВАТЕЛЯ
+      const userFullName = user.full_name || (user as any).fullName || '';
+      const userEmail = user.email || '';
+      const userName = user.username || userEmail.split('@')[0] || 'Пользователь';
+      
+      setProfileData({
+        name: userFullName || userName,
+        email: userEmail,
+        role: 'Пользователь',
+        full_name: userFullName || null,
+        username: userName
+      });
+      
+      console.log('✅ Profile data updated from auth:', {
+        full_name: userFullName,
+        username: userName,
+        email: userEmail
+      });
+    } else {
+      // ✅ СБРАСЫВАЕМ ДАННЫЕ ДЛЯ ГОСТЯ
+      setProfileData({
+        name: 'Гость',
+        email: 'Войдите в аккаунт',
+        role: 'Гость',
+        full_name: null,
+        username: null
+      });
+    }
+  }, [user]);
+
+  // ✅ ОБНОВЛЕННЫЕ ОБРАБОТЧИКИ ДЕЙСТВИЙ ПРОФИЛЯ
   const handleProfileAction = async (action: string) => {
-    console.log(`Profile action: ${action}`);
+    console.log(`🎯 Profile action: ${action}`);
     
     switch (action) {
       case 'profile':
         setIsProfileModalOpen(true);
         break;
+        
       case 'settings':
-        alert('Настройки приложения скоро будут доступны!');
+        setIsSettingsModalOpen(true); // ✅ Открываем модалку настроек
         break;
+        
       case 'help':
-        alert('Помощь и поддержка скоро будут доступны!');
+        alert('❓ Помощь и поддержка скоро будут доступны!');
         break;
+        
       case 'logout':
-        if (window.confirm('Вы уверены, что хотите выйти?')) {
+        if (window.confirm('🚪 Вы уверены, что хотите выйти?')) {
           try {
             await logout();
             navigate('/login');
+            // Сбрасываем данные профиля
+            setProfileData({
+              name: 'Гость',
+              email: 'Войдите в аккаунт',
+              role: 'Гость',
+              full_name: null,
+              username: null
+            });
           } catch (error) {
-            console.error('Logout error:', error);
-            alert('Произошла ошибка при выходе');
+            console.error('❌ Logout error:', error);
+            alert('⚠️ Произошла ошибка при выходе');
           }
         }
         break;
+        
       case 'login':
         navigate('/login');
         break;
+        
       case 'register':
         navigate('/register');
         break;
+        
       default:
-        console.log(`Unknown action: ${action}`);
+        console.log(`❓ Unknown action: ${action}`);
+    }
+    
+    // Автоматически закрываем попап после действия
+    closeProfilePopup();
+  };
+
+  // ✅ ФУНКЦИЯ ДЛЯ ОБРАБОТКИ КЛИКА НА ПРОФИЛЬ В ХЕДЕРЕ
+  const handleHeaderProfileAction = (action: string, event?: React.MouseEvent<HTMLButtonElement>) => {
+    if (action === 'openProfile' && event) {
+      openProfilePopup(event);
+    } else {
+      handleProfileAction(action);
     }
   };
 
-  // Функция для обновления профиля
-  const handleProfileSave = (updatedProfile: any) => {
+  // ✅ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ПРОФИЛЯ
+  const handleProfileSave = (updatedProfile: {
+    name?: string;
+    email?: string;
+    full_name?: string | null;
+    username?: string | null;
+  }) => {
     setProfileData(prev => ({
       ...prev,
       ...updatedProfile
     }));
-    console.log('Profile saved:', updatedProfile);
+    console.log('💾 Profile saved:', updatedProfile);
+    setIsProfileModalOpen(false);
   };
-  // Функция для открытия страницы профиля
+  // ✅ ФУНКЦИЯ ДЛЯ СОХРАНЕНИЯ НАСТРОЕК
+  const handleSaveSettings = (settings: any) => {
+    setTimerSettings(settings);
+    
+    // Применяем настройки к текущему таймеру
+    if (timerMode === 'pomodoro') {
+      setTime(settings.pomodoro * 60);
+    } else if (timerMode === 'shortBreak') {
+      setTime(settings.shortBreak * 60);
+    } else if (timerMode === 'longBreak') {
+      setTime(settings.longBreak * 60);
+    }
+    
+    // Применяем тему
+    setDarkMode(settings.darkMode);
+    
+    // Применяем авто-старт настройки если нужно
+    if (timerState === 'stopped' && settings.autoStartPomodoros && timerMode === 'pomodoro') {
+      // Автозапуск помодоро
+    }
+    
+    console.log('⚙️ Settings saved:', settings);
+    setIsSettingsModalOpen(false);
+    
+    // Можно сохранить настройки в localStorage
+    localStorage.setItem('timerSettings', JSON.stringify(settings));
+  };
+  
+  // ✅ ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ СТРАНИЦЫ ПРОФИЛЯ
   const handleOpenProfilePage = () => {
     setIsProfileModalOpen(false);
     navigate('/profile');
   };
+
+  // ✅ ФУНКЦИЯ ДЛЯ ЗАГРУЗКИ ПРОФИЛЯ (УПРОЩЕННАЯ)
+  const loadUserProfile = async () => {
+    try {
+      const { getProfileData } = useAuth();
+      
+      // Проверяем, что функция существует и является функцией
+      if (typeof getProfileData === 'function') {
+        const userProfile = getProfileData();
+        
+        if (userProfile) {
+          setProfileData(prev => ({
+            ...prev,
+            name: userProfile.name || prev.name,
+            email: userProfile.email || prev.email,
+            full_name: userProfile.full_name || prev.full_name,
+            username: userProfile.username || prev.username,
+            role: userProfile.role || prev.role
+          }));
+          
+          console.log('✅ User profile loaded from auth hook:', userProfile);
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to load user profile:', error);
+    }
+  };
+
+  // ✅ АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ПРОФИЛЯ ПОСЛЕ ЛОГИНА
+  useEffect(() => {
+    if (isAuthenticated) {
+      const timer = setTimeout(() => {
+        loadUserProfile();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated]);
 
   // ========== ОБРАБОТЧИКИ DRAG & DROP ==========
   const handleDragStart = (category: Category, e: React.DragEvent) => {
@@ -661,9 +875,18 @@ const Dashboard = () => {
           setEditingTask(null);
           setIsTaskModalOpen(true);
         }}
-        onProfileAction={handleProfileAction}
+        onProfileAction={handleHeaderProfileAction}
         profileData={profileData}
         onConfettiTrigger={handleConfettiTrigger}
+      />
+      
+      {/* ✅ ПОПАП ПРОФИЛЯ */}
+      <ProfilePopup
+        isOpen={showProfilePopup}
+        onClose={closeProfilePopup}
+        onProfileAction={handleProfileAction}
+        profileData={profileData}
+        position={getProfilePopupPosition()}
       />
 
       <div className="main-layout">
@@ -754,6 +977,16 @@ const Dashboard = () => {
               onSave={handleProfileSave}
               onOpenProfilePage={handleOpenProfilePage}
               initialData={profileData}
+            />
+          )}
+
+          {/* ✅ МОДАЛКА НАСТРОЕК */}
+          {isSettingsModalOpen && (
+            <SettingsModal
+              isOpen={isSettingsModalOpen}
+              onClose={() => setIsSettingsModalOpen(false)}
+              onSave={handleSaveSettings}
+              initialSettings={timerSettings}
             />
           )}
 

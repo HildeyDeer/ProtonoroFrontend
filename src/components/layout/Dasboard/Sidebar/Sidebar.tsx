@@ -1,7 +1,7 @@
 import { Target, BarChart3, CheckCircle, Clock, GripVertical, ChevronRight, Plus } from 'lucide-react';
 //import { useState } from 'react';
 import styles from './Sidebar.module.css';
-import type { Category } from '../../../types';
+import type { Category } from '../../../../types';
 
 interface SidebarProps {
   categories: Category[];
@@ -42,14 +42,14 @@ const Sidebar = ({
           onClick={onTasksClick}
         >
           <Target size={20} />
-          <span>Tasks</span>
+          <span>Доска Задач</span>
         </button>
         <button 
           className={`${styles.navItem} ${activeTab === 'analytics' ? styles.active : ''}`}
           onClick={onOpenAnalytics}
         >
           <BarChart3 size={20} />
-          <span>Analytics</span>
+          <span>Аналитика</span>
         </button>
       </nav>
 
@@ -59,7 +59,7 @@ const Sidebar = ({
           <button 
             className={styles.addCategoryButton}
             onClick={onAddCategory}
-            title="Add new category"
+            title="Добавить новую категорию"
           >
             <Plus size={16} />
           </button>
@@ -89,14 +89,14 @@ const Sidebar = ({
       </div>
 
       <div className={styles.statsWidget}>
-        <h3>Overview</h3>
+        <h3>Обзор</h3>
         <div className={styles.statItem}>
           <div className={`${styles.statIcon} ${styles.completed}`}>
             <CheckCircle size={20} />
           </div>
           <div>
             <div className={styles.statValue}>{completedTasks}</div>
-            <div className={styles.statLabel}>Completed</div>
+            <div className={styles.statLabel}>Завершено</div>
           </div>
         </div>
         <div className={styles.statItem}>
@@ -105,7 +105,7 @@ const Sidebar = ({
           </div>
           <div>
             <div className={styles.statValue}>{inProgressTasks}</div>
-            <div className={styles.statLabel}>In Progress</div>
+            <div className={styles.statLabel}>В Прогрессе</div>
           </div>
         </div>
         <div className={styles.statItem}>
@@ -114,7 +114,7 @@ const Sidebar = ({
           </div>
           <div>
             <div className={styles.statValue}>{totalTasks}</div>
-            <div className={styles.statLabel}>Total Tasks</div>
+            <div className={styles.statLabel}>Всего задач</div>
           </div>
         </div>
       </div>

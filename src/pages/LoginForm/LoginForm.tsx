@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore'; // Используем правильный store
+import { useAuthStore } from '../../store/useAuthStore';
+import PrivacyPolicyModal from '../../components/layout/Registration-Login/PrivacyPolicyModal/PrivacyPolicyModal';
+import TermsOfUseModal from '../../components/layout/Registration-Login/TermsOfUseModal/TermsOfUseModal';
 import styles from './LoginForm.module.css';
 
 interface LoginFormData {
@@ -18,7 +20,6 @@ interface LoginErrors {
 const LoginForm = () => {
   const navigate = useNavigate();
   
-  // ✅ Используем правильные методы из store
   const { login: storeLogin, loading, error: storeError } = useAuthStore();
   
   const [formData, setFormData] = useState<LoginFormData>({
@@ -28,6 +29,8 @@ const LoginForm = () => {
   });
   
   const [errors, setErrors] = useState<LoginErrors>({});
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfUse, setShowTermsOfUse] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -36,12 +39,10 @@ const LoginForm = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    // Очищаем ошибку при изменении поля
     if (errors[name as keyof LoginErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
     
-    // Очищаем общую ошибку при любом изменении
     if (errors.general) {
       setErrors(prev => ({ ...prev, general: undefined }));
     }
@@ -72,29 +73,36 @@ const LoginForm = () => {
     if (!validateForm()) return;
     
     try {
-      // ✅ Используем метод login из store (который вызывает API)
       await storeLogin(formData.email, formData.password, formData.rememberMe);
-      
-      // ✅ Если успешно - переходим на dashboard
       navigate('/dashboard');
       
     } catch (error: any) {
-      // ✅ Ошибка уже обработана в store, можно показать дополнительно
       console.error('Login form error:', error);
-      
-      // ✅ Используем ошибку из store или создаем свою
       const errorMessage = storeError || error.message || 'Ошибка авторизации';
       setErrors({ general: errorMessage });
     }
   };
 
-  // ✅ Убираем демо-логин, так как его нет в новом authService
-  // const handleDemoLogin = () => { ... }
-
   const handleOAuthLogin = (provider: string) => {
-    // Оставляем как заглушку
     console.log(`OAuth login with ${provider} - not implemented yet`);
     alert(`В будущем здесь будет интеграция с ${provider}`);
+  };
+
+  // Функции для открытия/закрытия модалок
+  const openPrivacyPolicy = () => {
+    setShowPrivacyPolicy(true);
+  };
+
+  const openTermsOfUse = () => {
+    setShowTermsOfUse(true);
+  };
+
+  const closePrivacyPolicy = () => {
+    setShowPrivacyPolicy(false);
+  };
+
+  const closeTermsOfUse = () => {
+    setShowTermsOfUse(false);
   };
 
   return (
@@ -154,7 +162,7 @@ const LoginForm = () => {
               </p>
             </div>
 
-            {/* ✅ Показываем общую ошибку если есть */}
+            {/* Общая ошибка */}
             {errors.general && (
               <div className={styles.errorAlert}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -164,7 +172,7 @@ const LoginForm = () => {
               </div>
             )}
 
-            {/* OAuth Providers (опционально, можно убрать) */}
+            {/* OAuth Providers */}
             <div className={styles.oauthSection}>
               <h3 className={styles.oauthTitle}>Быстрый вход</h3>
               <div className={styles.oauthButtons}>
@@ -233,7 +241,7 @@ const LoginForm = () => {
                     Пароль
                   </label>
                   <Link 
-                    to="/forgot-password" // ✅ Ссылка на страницу восстановления
+                    to="/forgot-password"
                     className={styles.forgotPassword}
                   >
                     Забыли пароль?
@@ -286,7 +294,7 @@ const LoginForm = () => {
               </button>
             </form>
 
-            {/* ✅ Убираем демо-секцию (если нужно оставить - перенаправляем на регистрацию) */}
+            {/* Создание аккаунта */}
             <div className={styles.demoSection}>
               <div className={styles.divider}>
                 <span className={styles.dividerText}>Нет аккаунта?</span>
@@ -312,22 +320,41 @@ const LoginForm = () => {
               </p>
             </div>
 
-            {/* Terms */}
+            {/* Terms - ЗАМЕНЯЕМ НА КНОПКИ */}
             <div className={styles.termsSection}>
               <p className={styles.termsText}>
                 Нажимая "Войти", вы соглашаетесь с{' '}
-                <Link to="/terms" className={styles.linkTerms}>
+                <button 
+                  type="button" 
+                  onClick={openTermsOfUse}
+                  className={styles.linkTerms}
+                >
                   Условиями использования
-                </Link>{' '}
+                </button>{' '}
                 и{' '}
-                <Link to="/privacy" className={styles.linkTerms}>
+                <button 
+                  type="button" 
+                  onClick={openPrivacyPolicy}
+                  className={styles.linkTerms}
+                >
                   Политикой конфиденциальности
-                </Link>
+                </button>
               </p>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Модальные окна */}
+      <PrivacyPolicyModal 
+        isOpen={showPrivacyPolicy} 
+        onClose={closePrivacyPolicy} 
+      />
+      
+      <TermsOfUseModal 
+        isOpen={showTermsOfUse} 
+        onClose={closeTermsOfUse} 
+      />
     </div>
   );
 };

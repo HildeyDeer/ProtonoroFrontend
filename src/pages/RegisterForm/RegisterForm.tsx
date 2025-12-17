@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../api/auth'; // Импортируем хук из auth.ts
+import { useAuth } from '../../api/auth';
 import styles from './RegisterForm.module.css';
+import PrivacyPolicyModal from '../../components/layout/Registration-Login/PrivacyPolicyModal/PrivacyPolicyModal';
+import TermsOfUseModal from '../../components/layout/Registration-Login/TermsOfUseModal/TermsOfUseModal';
 
 interface RegisterFormData {
-  fullName: string; // Полное имя для бэкенда
-  username: string; // Имя пользователя для входа
+  fullName: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -19,13 +21,11 @@ interface RegisterErrors {
   password?: string;
   confirmPassword?: string;
   agreeToTerms?: string;
-  general?: string; // Общая ошибка
+  general?: string;
 }
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  
-  // Используем хук useAuth для регистрации
   const { register: registerApi, loading } = useAuth();
   
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -38,6 +38,8 @@ const RegisterForm = () => {
   });
   
   const [errors, setErrors] = useState<RegisterErrors>({});
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfUse, setShowTermsOfUse] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -46,12 +48,10 @@ const RegisterForm = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    // Очищаем ошибку при изменении поля
     if (errors[name as keyof RegisterErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
     
-    // Очищаем общую ошибку при любом изменении
     if (errors.general) {
       setErrors(prev => ({ ...prev, general: undefined }));
     }
@@ -60,14 +60,12 @@ const RegisterForm = () => {
   const validateForm = () => {
     const newErrors: RegisterErrors = {};
     
-    // Валидация полного имени
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Полное имя обязательно';
     } else if (formData.fullName.trim().length < 2) {
       newErrors.fullName = 'Полное имя должно содержать минимум 2 символа';
     }
     
-    // Валидация имени пользователя
     if (!formData.username.trim()) {
       newErrors.username = 'Имя пользователя обязательно';
     } else if (formData.username.trim().length < 3) {
@@ -76,14 +74,12 @@ const RegisterForm = () => {
       newErrors.username = 'Только латинские буквы, цифры и нижнее подчеркивание';
     }
     
-    // Валидация email
     if (!formData.email) {
       newErrors.email = 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Некорректный email';
     }
     
-    // Валидация пароля
     if (!formData.password) {
       newErrors.password = 'Пароль обязателен';
     } else if (formData.password.length < 8) {
@@ -92,14 +88,12 @@ const RegisterForm = () => {
       newErrors.password = 'Пароль должен содержать заглавные и строчные буквы и цифры';
     }
     
-    // Подтверждение пароля
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Подтверждение пароля обязательно';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Пароли не совпадают';
     }
     
-    // Согласие с условиями
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'Необходимо согласие с условиями';
     }
@@ -114,21 +108,15 @@ const RegisterForm = () => {
     if (!validateForm()) return;
     
     try {
-      // Используем функцию register из auth.ts
-      // Передаем fullName и username отдельно
       const result = await registerApi(
         formData.email, 
         formData.password, 
-        formData.fullName, // full_name
-        formData.username  // username
+        formData.fullName,
+        formData.username
       );
       
       if (result.success && result.data) {
-        // Регистрация успешна
         console.log('Registration successful:', result.data);
-        
-        // Автоматически логиним пользователя после успешной регистрации
-        // или переходим на страницу успеха
         navigate('/register/success', { 
           state: { 
             email: formData.email,
@@ -136,7 +124,6 @@ const RegisterForm = () => {
           }
         });
       } else {
-        // Обработка ошибок регистрации
         const errorMessage = result.error || 'Ошибка регистрации';
         
         if (errorMessage.includes('email') || errorMessage.includes('Email')) {
@@ -154,7 +141,6 @@ const RegisterForm = () => {
   };
 
   const handleOAuthRegister = (provider: string) => {
-    // Используем loading из useAuth
     if (loading) return;
     
     console.log(`OAuth registration with ${provider}`);
@@ -164,7 +150,24 @@ const RegisterForm = () => {
     }, 1000);
   };
 
-    return (
+  // Обработчики открытия/закрытия модалок
+  const openPrivacyPolicy = () => {
+    setShowPrivacyPolicy(true);
+  };
+
+  const openTermsOfUse = () => {
+    setShowTermsOfUse(true);
+  };
+
+  const closePrivacyPolicy = () => {
+    setShowPrivacyPolicy(false);
+  };
+
+  const closeTermsOfUse = () => {
+    setShowTermsOfUse(false);
+  };
+
+  return (
     <div className={styles.registerContainer}>
       {/* Фоновые элементы */}
       <div className={styles.registerBackground}>
@@ -413,7 +416,7 @@ const RegisterForm = () => {
                     <button 
                       type="button"
                       className={styles.linkTerms}
-                      onClick={() => alert('Условия использования скоро будут доступны')}
+                      onClick={openTermsOfUse}
                     >
                       Условиями использования
                     </button>{' '}
@@ -421,7 +424,7 @@ const RegisterForm = () => {
                     <button 
                       type="button"
                       className={styles.linkTerms}
-                      onClick={() => alert('Политика конфиденциальности скоро будет доступна')}
+                      onClick={openPrivacyPolicy}
                     >
                       Политикой конфиденциальности
                     </button>
@@ -488,6 +491,17 @@ const RegisterForm = () => {
           </div>
         </div>
       </main>
+
+      {/* Модальные окна */}
+      <PrivacyPolicyModal 
+        isOpen={showPrivacyPolicy} 
+        onClose={closePrivacyPolicy} 
+      />
+      
+      <TermsOfUseModal 
+        isOpen={showTermsOfUse} 
+        onClose={closeTermsOfUse} 
+      />
     </div>
   );
 };
