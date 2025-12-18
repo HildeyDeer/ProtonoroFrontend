@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MoreVertical, X, Clock, CheckCircle, Settings } from 'lucide-react';
 import styles from './DropZone.module.css';
-import type { DroppedCategory, Task } from '../../../../types';
+import type { DroppedCategory, Task } from '../../../../../types';
 
 interface DropZoneProps {
   droppedCategories: DroppedCategory[];
@@ -106,7 +106,7 @@ const DropZone = ({
                   />
                   <h4>{category.name}</h4>
                   <span className={styles.categoryTaskCount}>
-                    ({category.tasks.length} tasks)
+                    ({category.tasks.length} задач)
                   </span>
                 </div>
                 <div className={styles.categoryActions} ref={categoryMenuRef}>
@@ -126,18 +126,18 @@ const DropZone = ({
                           setShowCategoryMenuId(null);
                         }}
                       >
-                        ✏️ Изменить Категорию
+                        ✏️ Изменить
                       </button>
                       <button 
                         className={styles.deleteBtn}
                         onClick={() => {
-                          if (window.confirm(`Delete category "${category.name}"?`)) {
+                          if (window.confirm(`Удалить Категорию "${category.name}"?`)) {
                             onDeleteCategory(category.id);
                             setShowCategoryMenuId(null);
                           }
                         }}
                       >
-                        🗑️ Удалить Категорию
+                        🗑️ Удалить
                       </button>
                     </div>
                   )}
@@ -145,7 +145,7 @@ const DropZone = ({
                   <button 
                     className={styles.removeCategoryBtn}
                     onClick={() => onRemoveCategory(category.id)}
-                    title="Remove from view"
+                    title="Скрыть"
                   >
                     <X size={16} />
                   </button>
@@ -189,7 +189,7 @@ const DropZone = ({
                                 onTaskAction(category.id, task, 'edit');
                                 setShowTaskMenu(null);
                               }}>
-                                ✏️ Изменить Задачу
+                                ✏️ Изменить
                               </button>
                               <button 
                                 className={styles.deleteBtn}
@@ -198,7 +198,7 @@ const DropZone = ({
                                   setShowTaskMenu(null);
                                 }}
                               >
-                                🗑️ Удалить Задачу
+                                🗑️ Удалить
                               </button>
                             </div>
                           )}

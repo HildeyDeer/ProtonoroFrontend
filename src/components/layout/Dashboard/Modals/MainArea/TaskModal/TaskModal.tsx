@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Calendar, Clock } from 'lucide-react';
 import styles from './TaskModal.module.css';
-import type { Category } from '../../../../../types';
+import type { Category } from '../../../../../../types';
 
 interface TaskModalProps {
   isOpen: boolean;

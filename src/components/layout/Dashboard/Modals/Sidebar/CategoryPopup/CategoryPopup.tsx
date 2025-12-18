@@ -1,6 +1,6 @@
 import { GripVertical } from 'lucide-react';
 import styles from './CategoryPopup.module.css';
-import type { Category } from '../../../../../types';
+import type { Category } from '../../../../../../types';
 
 interface CategoryPopupProps {
   category: Category;
@@ -36,9 +36,9 @@ const CategoryPopup = ({
           <h4>{category.name}</h4>
         </div>
         <div className={styles.popupStats}>
-          <span className={styles.taskCount}>{category.tasks.length} tasks</span>
+          <span className={styles.taskCount}>{category.tasks.length} задач</span>
           <span className={styles.completedCount}>
-            {category.tasks.filter(t => t.completed).length} completed
+            {category.tasks.filter(t => t.completed).length} Завершено
           </span>
         </div>
       </div>
@@ -75,7 +75,7 @@ const CategoryPopup = ({
           onClick={onDragToMain}
         >
           <GripVertical size={14} />
-          Drag to main area
+          Перетащить на основную зону
         </button>
       </div>
     </div>

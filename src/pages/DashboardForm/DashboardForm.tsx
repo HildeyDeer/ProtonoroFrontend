@@ -1,19 +1,19 @@
-import { useState, useEffect, useRef } from 'react'; // Убрал useCallback
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../api/auth';
-import Header from '../../components/layout/Dasboard/Header/Header';
-import ProfilePopup from '../../components/layout/Dasboard/Modals/ProfilePopup/ProfilePopup';
-import Sidebar from '../../components/layout/Dasboard/Sidebar/Sidebar';
-import TimerSection from '../../components/layout/Dasboard/timer/TimerSection';
-import DropZone from '../../components/layout/Dasboard/dropzone/DropZone';
-import CategoryPopup from '../../components/layout/Dasboard/Modals/CategoryPopup/CategoryPopup';
-import CategoryModal from '../../components/layout/Dasboard/Modals/CategoryModal/CategoryModal';
-import TaskModal from '../../components/layout/Dasboard/Modals/TaskModal/TaskModal';
-import ProfileModal from '../../components/layout/Dasboard/Modals/ProfileModal/ProfileModal';
-import SettingsModal from '../../components/layout/Dasboard/Modals/SettingsModal/SettingsModal';
-import Analytics from '../../components/layout/Dasboard/Analytics/Analytics';
-import Confetti from '../../components/layout/Dasboard/Confetti/Confetti';
-import type { Category, TimerState, TimerMode, DroppedCategory, Task, TimerSettings } from '../../types';
+import Header from '../../components/layout/Dashboard/Header/Header';
+import ProfilePopup from '../../components/layout/Dashboard/Modals/Header/ProfilePopup/ProfilePopup';
+import Sidebar from '../../components/layout/Dashboard/Sidebar/Sidebar';
+import TimerSection from '../../components/layout/Dashboard/MainArea/Timer/TimerSection';
+import DropZone from '../../components/layout/Dashboard/MainArea/Dropzone/DropZone';
+import CategoryPopup from '../../components/layout/Dashboard/Modals/Sidebar/CategoryPopup/CategoryPopup';
+import CategoryModal from '../../components/layout/Dashboard/Modals/MainArea/CategoryModal/CategoryModal';
+import TaskModal from '../../components/layout/Dashboard/Modals/MainArea/TaskModal/TaskModal';
+import ProfileModal from '../../components/layout/Dashboard/Modals/MainArea/ProfileModal/ProfileModal';
+import SettingsModal from '../../components/layout/Dashboard/Modals/SettingsModal/SettingsModal';
+import Analytics from '../../components/layout/Dashboard/Modals/MainArea/AnalyticsModal/AnalyticsModal';
+import Confetti from '../../components/layout/Dashboard/Modals/Header/Confetti/Confetti';
+import type { Category, TimerState, TimerMode, DroppedCategory, Task } from '../../types';
 import '../../styles/App.css';
 
 const Dashboard = () => {
@@ -66,21 +66,21 @@ const Dashboard = () => {
 
   // Состояния компонента
   const [showConfetti, setShowConfetti] = useState(false);
+  
   // ✅ СОСТОЯНИЯ ДЛЯ НАСТРОЕК
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [timerSettings, setTimerSettings] = useState({
-    pomodoro: 25,      // 25 минут
-    shortBreak: 5,     // 5 минут
-    longBreak: 15,     // 15 минут
+    pomodoro: 25,
+    shortBreak: 5,
+    longBreak: 15,
     autoStartBreaks: true,
     autoStartPomodoros: true,
-    longBreakInterval: 4, // 4 помодоро до длинного перерыва
+    longBreakInterval: 4,
     notifications: true,
     sound: true,
     darkMode: true,
   });
 
-  
   // ✅ ТЕМНАЯ ТЕМА ПО УМОЛЧАНИЮ
   const [darkMode, setDarkMode] = useState(timerSettings.darkMode);
   
@@ -129,7 +129,6 @@ const Dashboard = () => {
     username: null as string | null
   });
 
-
   const [activeTab, setActiveTab] = useState<'tasks' | 'analytics'>('tasks');
   
   // Категории
@@ -152,6 +151,48 @@ const Dashboard = () => {
       ]
     },
   ]);
+
+  // Функция для расчета общего времени режима
+  const getTotalTimeForMode = (mode: TimerMode): number => {
+    switch(mode) {
+      case 'pomodoro': return timerSettings.pomodoro * 60;
+      case 'shortBreak': return timerSettings.shortBreak * 60;
+      case 'longBreak': return timerSettings.longBreak * 60;
+      default: return timerSettings.pomodoro * 60;
+    }
+  };
+
+  // Обработчики таймера
+  const handleStart = () => {
+    if (time === 0) {
+      handleReset();
+    }
+    setTimerState('running');
+  };
+
+  const handlePause = () => {
+    setTimerState('paused');
+  };
+
+  const handleReset = () => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setTimerState('stopped');
+    
+    switch (timerMode) {
+      case 'pomodoro':
+        setTime(timerSettings.pomodoro * 60);
+        break;
+      case 'shortBreak':
+        setTime(timerSettings.shortBreak * 60);
+        break;
+      case 'longBreak':
+        setTime(timerSettings.longBreak * 60);
+        break;
+    }
+  };
 
   // Переключение темы
   useEffect(() => {
@@ -230,12 +271,13 @@ const Dashboard = () => {
     if (!timerSettings.sound) return;
     
     try {
-      const audio = new Audio('src/Extra/Sounds/timer-complete.mp3'); // Добавьте звуковой файл
+      const audio = new Audio('src/Extra/Sounds/timer-complete.mp3');
       audio.play().catch(e => console.warn('Audio playback failed:', e));
     } catch (error) {
       console.warn('Sound playback error:', error);
     }
   };
+
   // Функция для показа уведомления
   const showTimerNotification = () => {
     if (!timerSettings.notifications || !('Notification' in window)) return;
@@ -267,19 +309,19 @@ const Dashboard = () => {
       if (completedPomodoros % timerSettings.longBreakInterval === timerSettings.longBreakInterval - 1) {
         setTimeout(() => {
           setTimerMode('longBreak');
-          setTime(timerSettings.longBreak * 60); // Используем настройки
+          setTime(timerSettings.longBreak * 60);
         }, 1000);
       } else {
         setTimeout(() => {
           setTimerMode('shortBreak');
-          setTime(timerSettings.shortBreak * 60); // Используем настройки
+          setTime(timerSettings.shortBreak * 60);
         }, 1000);
       }
       
     } else {
       setTimeout(() => {
         setTimerMode('pomodoro');
-        setTime(timerSettings.pomodoro * 60); // Используем настройки
+        setTime(timerSettings.pomodoro * 60);
       }, 1000);
     }
   };
@@ -290,35 +332,6 @@ const Dashboard = () => {
     setTimerMode(mode);
     
     switch (mode) {
-      case 'pomodoro':
-        setTime(timerSettings.pomodoro * 60);
-        break;
-      case 'shortBreak':
-        setTime(timerSettings.shortBreak * 60);
-        break;
-      case 'longBreak':
-        setTime(timerSettings.longBreak * 60);
-        break;
-    }
-  };
-
-  const startTimer = () => {
-    if (time === 0) {
-      resetTimer();
-    }
-    setTimerState('running');
-  };
-
-  const pauseTimer = () => setTimerState('paused');
-  
-  const resetTimer = () => {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setTimerState('stopped');
-    
-    switch (timerMode) {
       case 'pomodoro':
         setTime(timerSettings.pomodoro * 60);
         break;
@@ -423,6 +436,11 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  // ✅ ФУНКЦИЯ ДЛЯ ЗАКРЫТИЯ МОДАЛЬНОГО ОКНА ПРОФИЛЯ
+  const closeProfileModal = () => {
+    setIsProfileModalOpen(false);
+  };
+
   // ✅ ОБНОВЛЕННЫЕ ОБРАБОТЧИКИ ДЕЙСТВИЙ ПРОФИЛЯ
   const handleProfileAction = async (action: string) => {
     console.log(`🎯 Profile action: ${action}`);
@@ -433,7 +451,7 @@ const Dashboard = () => {
         break;
         
       case 'settings':
-        setIsSettingsModalOpen(true); // ✅ Открываем модалку настроек
+        setIsSettingsModalOpen(true);
         break;
         
       case 'help':
@@ -489,16 +507,17 @@ const Dashboard = () => {
   const handleProfileSave = (updatedProfile: {
     name?: string;
     email?: string;
-    full_name?: string | null;
-    username?: string | null;
+    role?: string;
+    avatar?: string | null;
   }) => {
     setProfileData(prev => ({
       ...prev,
       ...updatedProfile
     }));
     console.log('💾 Profile saved:', updatedProfile);
-    setIsProfileModalOpen(false);
+    closeProfileModal();
   };
+
   // ✅ ФУНКЦИЯ ДЛЯ СОХРАНЕНИЯ НАСТРОЕК
   const handleSaveSettings = (settings: any) => {
     setTimerSettings(settings);
@@ -515,45 +534,28 @@ const Dashboard = () => {
     // Применяем тему
     setDarkMode(settings.darkMode);
     
-    // Применяем авто-старт настройки если нужно
-    if (timerState === 'stopped' && settings.autoStartPomodoros && timerMode === 'pomodoro') {
-      // Автозапуск помодоро
-    }
-    
     console.log('⚙️ Settings saved:', settings);
     setIsSettingsModalOpen(false);
     
-    // Можно сохранить настройки в localStorage
+    // Сохраняем настройки в localStorage
     localStorage.setItem('timerSettings', JSON.stringify(settings));
-  };
-  
-  // ✅ ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ СТРАНИЦЫ ПРОФИЛЯ
-  const handleOpenProfilePage = () => {
-    setIsProfileModalOpen(false);
-    navigate('/profile');
   };
 
   // ✅ ФУНКЦИЯ ДЛЯ ЗАГРУЗКИ ПРОФИЛЯ (УПРОЩЕННАЯ)
   const loadUserProfile = async () => {
     try {
-      const { getProfileData } = useAuth();
-      
-      // Проверяем, что функция существует и является функцией
-      if (typeof getProfileData === 'function') {
-        const userProfile = getProfileData();
+      // Используем данные из useAuth, а не пытаемся вызвать несуществующую функцию
+      if (user) {
+        setProfileData(prev => ({
+          ...prev,
+          name: user.full_name || user.username || prev.name,
+          email: user.email || prev.email,
+          full_name: user.full_name || prev.full_name,
+          username: user.username || prev.username,
+          role: 'Пользователь'
+        }));
         
-        if (userProfile) {
-          setProfileData(prev => ({
-            ...prev,
-            name: userProfile.name || prev.name,
-            email: userProfile.email || prev.email,
-            full_name: userProfile.full_name || prev.full_name,
-            username: userProfile.username || prev.username,
-            role: userProfile.role || prev.role
-          }));
-          
-          console.log('✅ User profile loaded from auth hook:', userProfile);
-        }
+        console.log('✅ User profile loaded from auth:', user);
       }
     } catch (error) {
       console.warn('⚠️ Failed to load user profile:', error);
@@ -915,16 +917,17 @@ const Dashboard = () => {
         />
 
         <main className="content">
-          <TimerSection 
+          <TimerSection
             time={time}
             timerState={timerState}
             mode={timerMode}
             completedPomodoros={completedPomodoros}
-            onStart={startTimer}
-            onPause={pauseTimer}
-            onReset={resetTimer}
+            onStart={handleStart}
+            onPause={handlePause}
+            onReset={handleReset}
             onModeChange={handleModeChange}
             formatTime={formatTime}
+            totalTime={getTotalTimeForMode(timerMode)}
           />
 
           <DropZone 
@@ -970,12 +973,12 @@ const Dashboard = () => {
             />
           )}
 
+          {/* ✅ МОДАЛЬНОЕ ОКНО ПРОФИЛЯ */}
           {isProfileModalOpen && (
             <ProfileModal
               isOpen={isProfileModalOpen}
-              onClose={() => setIsProfileModalOpen(false)}
+              onClose={closeProfileModal}
               onSave={handleProfileSave}
-              onOpenProfilePage={handleOpenProfilePage}
               initialData={profileData}
             />
           )}
@@ -1000,14 +1003,14 @@ const Dashboard = () => {
 
           {showPopup && hoveredCategory && (
             <CategoryPopup 
-              category={hoveredCategory}
+              category={hoveredCategory!}
               position={popupPosition}
               onMouseEnter={handlePopupMouseEnter}
               onMouseLeave={handlePopupMouseLeave}
               onDragToMain={() => {
-                if (!droppedCategories.find(c => c.id === hoveredCategory.id)) {
+                if (!droppedCategories.find(c => c.id === hoveredCategory!.id)) {
                   const newDroppedCategory: DroppedCategory = {
-                    ...hoveredCategory,
+                    ...hoveredCategory!,
                     position: droppedCategories.length
                   };
                   setDroppedCategories([...droppedCategories, newDroppedCategory]);

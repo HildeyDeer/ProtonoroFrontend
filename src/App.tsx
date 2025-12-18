@@ -3,7 +3,8 @@ import Welcome from './pages/WelcomeForm/WelcomeForm';
 import Login from './pages/LoginForm/LoginForm';
 import Register from './pages/RegisterForm/RegisterForm';
 import Dashboard from './pages/DashboardForm/DashboardForm';
-import ProfileForm from './pages/ProfileForm/ProfileForm';
+import Profile from './pages/ProfileForm/ProfileForm';
+import Help from './pages/HelpForm/HelpForm';
 
 const App = () => {
   return (
@@ -12,7 +13,8 @@ const App = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/profile" element={<ProfileForm />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/help" element={<Help />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -1,7 +1,8 @@
 import { Calendar, Target, Search, Plus, Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../../api/auth';
-import ProfilePopup from '../Modals/ProfilePopup/ProfilePopup';
+import ProfilePopup from '../Modals/Header/ProfilePopup/ProfilePopup';
+import CalendarPopup from '../Modals/Header/CalendarPopup/CalendarPopup'; // Импорт нового компонента
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -43,6 +44,8 @@ const Header = ({
   onConfettiTrigger
 }: HeaderProps) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showCalendarPopup, setShowCalendarPopup] = useState(false);
+  const [calendarPopupPosition, setCalendarPopupPosition] = useState({ x: 0, y: 0 });
   const [clickCount, setClickCount] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
   const [currentDate, setCurrentDate] = useState('');
@@ -171,78 +174,101 @@ const Header = ({
     setLastClickTime(currentTime);
   };
 
+  // Обработчик клика на дату
+  const handleDateClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setCalendarPopupPosition({
+      x: rect.left,
+      y: rect.bottom + 10
+    });
+    setShowCalendarPopup(true);
+  };
+
   const logoClass = clickCount > 0 ? `${styles.logo} ${styles.logoPulse}` : styles.logo;
 
   return (
-    <header className={styles.header}>
-      <div className={styles.headerLeft}>
-        <div 
-          className={logoClass} 
-          onClick={handleLogoClick}
-          title={clickCount > 0 ? `Clicked ${clickCount} times` : "Click me!"}
-          style={{ cursor: 'pointer' }}
-        >
-          <Target className={styles.logoIcon} size={28} />
-          <h1>Protonoro</h1>
-        </div>
-        <div className={styles.dateDisplay}>
-          <Calendar size={18} />
-          <span>{currentDate}</span>
-        </div>
-      </div>
-      
-      <div className={styles.headerRight}>
-        <div className={styles.searchBar}>
-          <Search size={18} />
-          <input 
-            type="text" 
-            placeholder="Поиск задачи..." 
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-        
-        <button 
-          className={styles.themeToggle}
-          onClick={onThemeToggle}
-          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-        
-        <button className={styles.btnPrimary} onClick={onNewTask}>
-          <Plus size={18} />
-          Новая Задача
-        </button>
-        
-        <div className={styles.profileContainer}>
-          <button 
-            className={styles.userAvatar}
-            onClick={handleProfileClick}
-            aria-label="Меню профиля"
-            style={profileData?.avatar ? {
-              backgroundImage: `url(${profileData.avatar})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              color: 'transparent'
-            } : {}}
+    <>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <div 
+            className={logoClass} 
+            onClick={handleLogoClick}
+            title={clickCount > 0 ? `Clicked ${clickCount} times` : "Click me!"}
+            style={{ cursor: 'pointer' }}
           >
-            {!profileData?.avatar && <span>{getAvatarInitials()}</span>}
+            <Target className={styles.logoIcon} size={28} />
+            <h1>Protonoro</h1>
+          </div>
+          <div 
+            className={styles.dateDisplay}
+            onClick={handleDateClick}
+            style={{ cursor: 'pointer' }}
+            title="Показать календарь"
+          >
+            <Calendar size={18} />
+            <span>{currentDate}</span>
+          </div>
+        </div>
+        
+        <div className={styles.headerRight}>
+          <div className={styles.searchBar}>
+            <Search size={18} />
+            <input 
+              type="text" 
+              placeholder="Поиск задачи..." 
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            className={styles.themeToggle}
+            onClick={onThemeToggle}
+            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           
-          <ProfilePopup
-            isOpen={showProfileMenu}
-            onClose={() => setShowProfileMenu(false)}
-            onProfileAction={handleMenuProfileAction}
-            profileData={profileData}
-            position={{
-              right: window.innerWidth - avatarPosition.x - avatarPosition.width,
-              top: avatarPosition.y + 8
-            }}
-          />
+          <button className={styles.btnPrimary} onClick={onNewTask}>
+            <Plus size={18} />
+            Новая Задача
+          </button>
+          
+          <div className={styles.profileContainer}>
+            <button 
+              className={styles.userAvatar}
+              onClick={handleProfileClick}
+              aria-label="Меню профиля"
+              style={profileData?.avatar ? {
+                backgroundImage: `url(${profileData.avatar})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                color: 'transparent'
+              } : {}}
+            >
+              {!profileData?.avatar && <span>{getAvatarInitials()}</span>}
+            </button>
+            
+            <ProfilePopup
+              isOpen={showProfileMenu}
+              onClose={() => setShowProfileMenu(false)}
+              onProfileAction={handleMenuProfileAction}
+              profileData={profileData}
+              position={{
+                right: window.innerWidth - avatarPosition.x - avatarPosition.width,
+                top: avatarPosition.y + 8
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <CalendarPopup
+        isOpen={showCalendarPopup}
+        onClose={() => setShowCalendarPopup(false)}
+        position={calendarPopupPosition}
+      />
+    </>
   );
 };
 

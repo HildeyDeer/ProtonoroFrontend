@@ -1,6 +1,7 @@
 import { User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { useRef, useEffect } from 'react';
-import { useAuth } from '../../../../../api/auth';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../../../api/auth';
 import styles from './ProfilePopup.module.css';
 
 interface ProfilePopupProps {
@@ -41,6 +42,7 @@ const ProfilePopup = ({
 }: ProfilePopupProps) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate(); // Добавлен useNavigate для навигации
 
   // Закрытие попапа при клике вне его
   useEffect(() => {
@@ -132,6 +134,10 @@ const ProfilePopup = ({
         break;
       case 'login':
         window.location.href = '/login';
+        break;
+      case 'help':
+        // Навигация на страницу помощи
+        navigate('/help');
         break;
       default:
         onProfileAction(action);

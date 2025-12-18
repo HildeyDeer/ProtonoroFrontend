@@ -330,4 +330,27 @@
       transform: scale(1.2);
     }
   }
+
+  .dateDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.dateDisplay:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dateDisplay:hover svg {
+  color: var(--primary-color);
+}
+
 }

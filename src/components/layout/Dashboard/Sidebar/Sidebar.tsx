@@ -55,7 +55,7 @@ const Sidebar = ({
 
       <div className={styles.categoriesSection}>
         <div className={styles.sectionHeader}>
-          <h3>Categories</h3>
+          <h3>Категории</h3>
           <button 
             className={styles.addCategoryButton}
             onClick={onAddCategory}

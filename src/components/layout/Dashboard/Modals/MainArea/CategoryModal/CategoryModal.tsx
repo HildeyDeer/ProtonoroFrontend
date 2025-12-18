@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Palette } from 'lucide-react';
 import styles from './CategoryModal.module.css';
-import type { Category } from '../../../../../types';
+import type { Category } from '../../../../../../types';
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -47,7 +47,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, initialData }: CategoryModal
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>{initialData ? 'Edit Category' : 'Create New Category'}</h2>
+          <h2>{initialData ? 'Изменить Категорию' : 'Создать Категорию'}</h2>
           <button className={styles.closeButton} onClick={onClose}>
             <X size={20} />
           </button>
@@ -55,13 +55,13 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, initialData }: CategoryModal
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label htmlFor="name">Category Name *</label>
+            <label htmlFor="name">Название Категории *</label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter category name"
+              placeholder="Введите название категории"
               required
             />
           </div>
@@ -69,7 +69,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, initialData }: CategoryModal
           <div className={styles.formGroup}>
             <label>
               <Palette size={16} />
-              Color
+              Цвет
             </label>
             <div className={styles.colorGrid}>
               {colors.map((colorOption) => (
@@ -84,7 +84,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, initialData }: CategoryModal
               ))}
             </div>
             <div className={styles.selectedColor}>
-              Selected: 
+              Выбранно: 
               <span 
                 className={styles.colorPreview} 
                 style={{ backgroundColor: color }}
@@ -95,10 +95,10 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, initialData }: CategoryModal
 
           <div className={styles.modalFooter}>
             <button type="button" className={styles.cancelButton} onClick={onClose}>
-              Cancel
+              Закрыть
             </button>
             <button type="submit" className={styles.submitButton}>
-              {initialData ? 'Update Category' : 'Create Category'}
+              {initialData ? 'Обновить Категорию' : 'Создать категорию'}
             </button>
           </div>
         </form>

@@ -1,162 +1,246 @@
+/* Основные стили страницы профиля */
 .profilePage {
   min-height: 100vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg-secondary);
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Шапка страницы */
 .pageHeader {
-  padding: 2rem;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 3rem;
+  position: relative;
 }
 
 .backButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--primary-color);
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
   text-decoration: none;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
 }
 
 .backButton:hover {
-  opacity: 0.8;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+  transform: translateX(-2px);
+}
+
+.headerContent {
+  max-width: 800px;
 }
 
 .pageHeader h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pageSubtitle {
+  font-size: 1rem;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
 }
 
+/* Основной контейнер */
 .profileContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2rem;
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-  .profileContainer {
-    grid-template-columns: 1fr;
-    padding: 1rem;
-  }
-}
-
+/* Основная форма */
 .profileForm {
   background: var(--bg-primary);
+  border-radius: 1.25rem;
+  padding: 2.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 
+/* Секция аватара */
 .avatarSection {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .avatarContainer {
   position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.avatarWithImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(var(--primary-color-rgb, 59, 130, 246), 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatarWithImage:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 4px rgba(var(--primary-color-rgb, 59, 130, 246), 0.4);
 }
 
 .avatarImage {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 4px solid var(--primary-color);
 }
 
-.avatarPlaceholder {
-  width: 120px;
-  height: 120px;
+.removeAvatarBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.avatarWithImage:hover .removeAvatarBtn {
+  opacity: 1;
+}
+
+.removeAvatarBtn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
 .avatarInitials {
-  font-size: 2.5rem;
-  font-weight: 700;
   color: white;
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .avatarControls {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .avatarUploadBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  color: var(--text-primary);
-  font-size: 0.875rem;
+  padding: 0.875rem 2rem;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 0.875rem;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
 }
 
 .avatarUploadBtn:hover {
-  background: var(--border-color);
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
 }
 
 .avatarInput {
-  position: absolute;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  cursor: pointer;
+  display: none;
 }
 
-.removeAvatarBtn {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid var(--danger-color);
-  border-radius: 0.5rem;
-  color: var(--danger-color);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
+.avatarHint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin: 0;
 }
 
-.removeAvatarBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
-
+/* Сетка формы */
 .formGrid {
   display: grid;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
 }
 
-.formGroup {
+/* Секции формы */
+.formSection {
+  padding: 1.5rem;
+  background: var(--bg-tertiary);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.sectionTitle {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Группы полей */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
 }
 
 .formLabel {
@@ -164,16 +248,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
+  margin-bottom: 0.5rem;
 }
 
 .formInput {
-  padding: 0.75rem;
-  background: var(--bg-tertiary);
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.875rem;
+  font-size: 1rem;
   color: var(--text-primary);
   transition: all 0.2s;
 }
@@ -181,57 +267,62 @@
 .formInput:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--bg-secondary);
+}
+
+.formInput::placeholder {
+  color: var(--text-tertiary);
 }
 
 .formTextarea {
-  padding: 0.75rem;
-  background: var(--bg-tertiary);
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.875rem;
+  font-size: 1rem;
   color: var(--text-primary);
-  font-family: inherit;
-  resize: vertical;
-  min-height: 100px;
   transition: all 0.2s;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 
 .formTextarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: var(--bg-secondary);
 }
 
+/* Действия формы */
 .formActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1.5rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--border-color);
 }
 
-@media (max-width: 768px) {
-  .formActions {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
 .resetButton {
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 2rem;
   background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .resetButton:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+  border-color: var(--error-color);
+  color: var(--error-color);
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .actionButtons {
@@ -240,42 +331,49 @@
 }
 
 .cancelButton {
-  padding: 0.75rem 1.5rem;
-  background: transparent;
+  padding: 0.875rem 2rem;
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--text-primary);
-  font-size: 0.875rem;
   text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.2s;
+  text-align: center;
 }
 
 .cancelButton:hover {
-  background: var(--bg-tertiary);
+  background: var(--border-color);
 }
 
 .submitButton {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  border: none;
-  border-radius: 0.5rem;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-.submitButton:hover {
+.submitButton:hover:not(:disabled) {
   background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
 }
 
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Боковая панель */
 .sidePanel {
   display: flex;
   flex-direction: column;
@@ -284,24 +382,65 @@
 
 .infoCard {
   background: var(--bg-primary);
-  border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
 }
 
-.infoCard h3 {
+.infoCard:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cardHeader h3 {
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
   color: var(--text-primary);
+  margin: 0;
 }
 
 .infoCard p {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  margin-bottom: 1rem;
   line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.stats {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.statItem:last-child {
+  margin-bottom: 0;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.statValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .sideButton {
@@ -309,13 +448,171 @@
   padding: 0.75rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  color: var(--text-primary);
+  border-radius: 0.75rem;
   font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s;
+  text-align: center;
 }
 
 .sideButton:hover {
   background: var(--border-color);
+}
+
+.logoutCard {
+  margin-top: auto;
+  padding: 1.5rem;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 1rem;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logoutButton:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+/* Темная тема */
+:global(.dark-mode) .profilePage {
+  background: var(--bg-primary);
+}
+
+:global(.dark-mode) .profileForm,
+:global(.dark-mode) .infoCard {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .formSection {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:global(.dark-mode) .formInput,
+:global(.dark-mode) .formTextarea {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark-mode) .formInput:focus,
+:global(.dark-mode) .formTextarea:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+:global(.dark-mode) .cancelButton {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .cancelButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .resetButton {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:global(.dark-mode) .resetButton:hover {
+  border-color: var(--error-color);
+  color: var(--error-color);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+:global(.dark-mode) .sideButton {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .sideButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark-mode) .logoutCard {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .profileContainer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1.5rem;
+  }
+  
+  .profileForm {
+    padding: 2rem;
+  }
+  
+  .formActions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .actionButtons {
+    width: 100%;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .profileForm {
+    padding: 1.5rem;
+  }
+  
+  .avatarContainer {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .avatarInitials {
+    font-size: 2.5rem;
+  }
+  
+  .formGrid {
+    gap: 1.5rem;
+  }
+  
+  .formSection {
+    padding: 1.25rem;
+  }
 }
