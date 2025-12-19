@@ -19,6 +19,7 @@ interface Props {
   onPause: () => void;
   onReset: () => void;
   formatTime: (s: number) => string;
+  backgroundImage: boolean; // Новая пропса для фона-картинки
 }
 
 const TimerSection = ({
@@ -33,7 +34,8 @@ const TimerSection = ({
   onPause,
   onReset,
   onModeChange,
-  formatTime
+  formatTime,
+  backgroundImage = false // Значение по умолчанию
 }: Props) => {
 
   const [progress, setProgress] = useState(CIRCUMFERENCE);
@@ -77,8 +79,16 @@ const TimerSection = ({
     c.tasks.map(task => ({ ...task, categoryId: c.id }))
   );
 
+  // Определяем класс для фона
+  const getTimerSectionClass = () => {
+    const baseClass = `${styles.timerSection} ${styles[mode]}`;
+    return backgroundImage 
+      ? `${baseClass} ${styles.withBackgroundImage}`
+      : baseClass;
+  };
+
   return (
-    <div className={`${styles.timerSection} ${styles[mode]}`}>
+    <div className={getTimerSectionClass()}>
       <div className={styles.timerLayout}>
 
         {/* LEFT SIDE - CATEGORIES */}

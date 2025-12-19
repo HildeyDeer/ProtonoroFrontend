@@ -7,31 +7,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  backdrop-filter: blur(32px) saturate(170%);
-  -webkit-backdrop-filter: blur(32px) saturate(170%);
   transition: background 0.6s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-/* ===== MODES ===== */
-.timerSection.pomodoro {
+/* Фоновая картинка - не меняет цвет, без размытия */
+.timerSection.withBackgroundImage {
+  background: none !important;
+}
+
+/* Картинка для темной темы (по умолчанию) */
+.timerSection.withBackgroundImage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('src/Extra/Icons/timer-background-dark.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.85) saturate(1.1);
+  z-index: -2;
+  transition: all 0.6s ease;
+}
+
+/* Картинка для светлой темы */
+body.light-mode .timerSection.withBackgroundImage::before {
+  background-image: url('src/Extra/Icons/timer-background-light.jpg');
+  filter: brightness(1) saturate(1.05);
+}
+
+.timerSection.withBackgroundImage::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(135deg,
-    rgba(102,126,234,0.55),
-    rgba(118,75,162,0.45)
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.2)
+  );
+  z-index: -1;
+  transition: all 0.6s ease;
+}
+
+/* Более светлый оверлей для светлой темы */
+body.light-mode .timerSection.withBackgroundImage::after {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1)
   );
 }
 
-.timerSection.shortBreak {
+/* ===== MODES С ГРАДИЕНТНЫМ ФОНОМ (по умолчанию) ===== */
+.timerSection:not(.withBackgroundImage).pomodoro {
   background: linear-gradient(135deg,
-    rgba(16,185,129,0.55),
-    rgba(5,150,105,0.45)
+    rgba(102,126,234,0.85),
+    rgba(118,75,162,0.75)
   );
 }
 
-.timerSection.longBreak {
+.timerSection:not(.withBackgroundImage).shortBreak {
   background: linear-gradient(135deg,
-    rgba(245,158,11,0.55),
-    rgba(217,119,6,0.45)
+    rgba(16,185,129,0.85),
+    rgba(5,150,105,0.75)
+  );
+}
+
+.timerSection:not(.withBackgroundImage).longBreak {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.85),
+    rgba(217,119,6,0.75)
   );
 }
 
@@ -53,25 +103,78 @@
 }
 
 /* ======================================================
-   SLIDER - расположен над таймером
+   SLIDER - расположен над таймером (меняет цвет, с размытием)
    ====================================================== */
 .timerModeSlider {
   width: 100%;
   max-width: 340px;
   padding: 10px 14px;
-  background: rgba(255,255,255,0.16);
   border-radius: 60px;
   position: relative;
   overflow: hidden;
-  margin-bottom: 1.5rem; /* Отступ от таймера */
+  margin-bottom: 1.5rem;
 
-  backdrop-filter: blur(14px) saturate(160%);
+  /* Размытие под слайдером */
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+/* Цветовые режимы для слайдера */
+.timerSection.pomodoro .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.45),
+    rgba(118,75,162,0.35)
+  );
+  border: 1px solid rgba(102,126,234,0.5);
+}
+
+.timerSection.shortBreak .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.45),
+    rgba(5,150,105,0.35)
+  );
+  border: 1px solid rgba(16,185,129,0.5);
+}
+
+.timerSection.longBreak .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.45),
+    rgba(217,119,6,0.35)
+  );
+  border: 1px solid rgba(245,158,11,0.5);
+}
+
+/* Более темные градиенты для светлой темы */
+body.light-mode .timerSection.pomodoro .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.6),
+    rgba(118,75,162,0.5)
+  );
+  border: 1px solid rgba(102,126,234,0.7);
+}
+
+body.light-mode .timerSection.shortBreak .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.6),
+    rgba(5,150,105,0.5)
+  );
+  border: 1px solid rgba(16,185,129,0.7);
+}
+
+body.light-mode .timerSection.longBreak .timerModeSlider {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.6),
+    rgba(217,119,6,0.5)
+  );
+  border: 1px solid rgba(245,158,11,0.7);
 }
 
 /* Parallax tilt */
 .timerModeSlider:hover {
   transform: perspective(800px) rotateX(2deg) rotateY(-2deg);
   transition: transform 0.4s ease;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
 }
 
 .sliderTrack {
@@ -86,17 +189,31 @@
   text-align: center;
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.9);
   cursor: pointer;
   font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.sliderSegment:hover {
+  color: white;
+  text-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 
 .sliderSegment.active {
   color: white;
   font-weight: 600;
+  text-shadow: 0 0 12px rgba(255,255,255,0.6);
 }
 
-/* ===== LIQUID GLASS ИНДИКАТОР ===== */
+/* Более темный текст для светлой темы в слайдере */
+body.light-mode .sliderSegment {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ===== LIQUID GLASS ИНДИКАТОР (меняет цвет, с размытием) ===== */
 .sliderIndicator {
   position: absolute;
   top: 6px;
@@ -104,27 +221,73 @@
   width: calc((100% - 28px) / 3);
   height: calc(100% - 12px);
 
-  background: linear-gradient(
-    135deg,
-    rgba(255,255,255,0.38),
-    rgba(255,255,255,0.18)
-  );
-
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* Размытие под индикатором */
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
 
   border-radius: 45px;
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.5);
 
   box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.45),
-    0 10px 24px rgba(0,0,0,0.22);
+    inset 0 1px 1px rgba(255,255,255,0.6),
+    0 8px 24px rgba(0,0,0,0.3);
 
   transition:
     transform 0.6s cubic-bezier(0.22,1,0.36,1),
-    filter 0.35s ease;
+    filter 0.35s ease,
+    background 0.3s ease;
 
   z-index: 1;
+}
+
+/* Цвета индикатора для разных режимов */
+.timerSection.pomodoro .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(102,126,234,0.7),
+    rgba(118,75,162,0.6)
+  );
+}
+
+.timerSection.shortBreak .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(16,185,129,0.7),
+    rgba(5,150,105,0.6)
+  );
+}
+
+.timerSection.longBreak .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(245,158,11,0.7),
+    rgba(217,119,6,0.6)
+  );
+}
+
+/* Более насыщенные цвета для светлой темы */
+body.light-mode .timerSection.pomodoro .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(102,126,234,0.8),
+    rgba(118,75,162,0.7)
+  );
+}
+
+body.light-mode .timerSection.shortBreak .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(16,185,129,0.8),
+    rgba(5,150,105,0.7)
+  );
+}
+
+body.light-mode .timerSection.longBreak .sliderIndicator {
+  background: linear-gradient(
+    135deg,
+    rgba(245,158,11,0.8),
+    rgba(217,119,6,0.7)
+  );
 }
 
 /* Liquid wave shimmer */
@@ -135,8 +298,8 @@
   border-radius: inherit;
   background: radial-gradient(
     circle at 30% 20%,
-    rgba(255,255,255,0.45),
-    transparent 60%
+    rgba(255,255,255,0.6),
+    transparent 70%
   );
   opacity: 0.6;
   animation: liquidWave 6s infinite linear;
@@ -172,8 +335,13 @@
 
 .circleBg {
   fill: none;
-  stroke: rgba(255,255,255,0.18);
+  stroke: rgba(255,255,255,0.25);
   stroke-width: 8;
+}
+
+/* Более темный фон круга для светлой темы */
+body.light-mode .circleBg {
+  stroke: rgba(255,255,255,0.35);
 }
 
 .circleProgress {
@@ -181,7 +349,7 @@
   stroke: white;
   stroke-width: 8;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 7px rgba(255,255,255,0.45));
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
   transition: stroke-dashoffset 1s linear;
 }
 
@@ -197,12 +365,15 @@
 .timerValue {
   font-size: 4rem;
   font-weight: 700;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
 
 .timerLabel {
   font-size: 0.8rem;
   letter-spacing: 0.15em;
-  opacity: 0.9;
+  opacity: 0.95;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  font-weight: 500;
 }
 
 /* ================= CONTROLS ================= */
@@ -214,10 +385,22 @@
 .timerBtn {
   padding: 0.9rem 2.2rem;
   border-radius: 50px;
-  background: rgba(255,255,255,0.22);
-  border: none;
+  border: 1px solid rgba(255,255,255,0.4);
   color: white;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  
+  /* Размытие под кнопками */
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  letter-spacing: 0.5px;
+}
+
+.timerBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
 
 .timerBtn.active {
@@ -225,35 +408,91 @@
 }
 
 @keyframes pulseGlow {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-  50% { box-shadow: 0 0 0 14px rgba(255,255,255,0); }
+  0%,100% { 
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 0 0 0 rgba(255,255,255,0.4); 
+  }
+  50% { 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 14px rgba(255,255,255,0); 
+  }
 }
 
-/* ================= SIDE DROP ================= */
+/* ================= SIDE DROP (категории и задачи - меняют цвет, с размытием) ================= */
 .sideDropZone {
   width: 220px;
   min-height: 300px;
   padding: 1.25rem;
   border-radius: 1.5rem;
-
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.28);
-
-  backdrop-filter: blur(20px) saturate(160%);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-
+  transition: all 0.3s ease;
+  
+  /* Размытие под боковыми панелями */
+  backdrop-filter: blur(15px) saturate(170%);
+  -webkit-backdrop-filter: blur(15px) saturate(170%);
   box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.35),
-    0 12px 30px rgba(0,0,0,0.25);
+    inset 0 1px 1px rgba(255,255,255,0.4),
+    0 12px 32px rgba(0,0,0,0.3);
+}
+
+/* Цветовые режимы для боковых панелей */
+.timerSection.pomodoro .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.35),
+    rgba(118,75,162,0.25)
+  );
+  border: 1px solid rgba(102,126,234,0.45);
+}
+
+.timerSection.shortBreak .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.35),
+    rgba(5,150,105,0.25)
+  );
+  border: 1px solid rgba(16,185,129,0.45);
+}
+
+.timerSection.longBreak .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.35),
+    rgba(217,119,6,0.25)
+  );
+  border: 1px solid rgba(245,158,11,0.45);
+}
+
+/* Более насыщенные градиенты для светлой темы */
+body.light-mode .timerSection.pomodoro .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.45),
+    rgba(118,75,162,0.35)
+  );
+  border: 1px solid rgba(102,126,234,0.6);
+}
+
+body.light-mode .timerSection.shortBreak .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.45),
+    rgba(5,150,105,0.35)
+  );
+  border: 1px solid rgba(16,185,129,0.6);
+}
+
+body.light-mode .timerSection.longBreak .sideDropZone {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.45),
+    rgba(217,119,6,0.35)
+  );
+  border: 1px solid rgba(245,158,11,0.6);
 }
 
 .sideTitle {
   font-size: 0.7rem;
   letter-spacing: 0.15em;
-  opacity: 0.8;
+  opacity: 0.95;
   text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 /* ================= EMPTY STATE ================= */
@@ -264,30 +503,67 @@
   justify-content: center;
   text-align: center;
   padding: 2rem 1rem;
-  opacity: 0.7;
+  opacity: 0.8;
   animation: fadeSlideIn 0.45s ease-out;
 }
 
 .emptyStateIcon {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
-  opacity: 0.5;
+  opacity: 0.6;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 .emptyStateText {
   font-size: 0.8rem;
   line-height: 1.4;
   max-width: 180px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
-/* ================= CATEGORY ================= */
+/* ================= CATEGORY (с размытием) ================= */
 .sideCategory {
   padding: 0.75rem;
   border-radius: 1rem;
-  background: rgba(255,255,255,0.16);
-  border: 1px solid rgba(255,255,255,0.25);
-
   animation: fadeSlideIn 0.45s ease-out;
+  transition: all 0.3s ease;
+  
+  /* Размытие под категориями */
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Цветовые режимы для категорий */
+.timerSection.pomodoro .sideCategory {
+  background: rgba(102,126,234,0.3);
+  border: 1px solid rgba(102,126,234,0.5);
+}
+
+.timerSection.shortBreak .sideCategory {
+  background: rgba(16,185,129,0.3);
+  border: 1px solid rgba(16,185,129,0.5);
+}
+
+.timerSection.longBreak .sideCategory {
+  background: rgba(245,158,11,0.3);
+  border: 1px solid rgba(245,158,11,0.5);
+}
+
+/* Более насыщенные цвета для светлой темы */
+body.light-mode .timerSection.pomodoro .sideCategory {
+  background: rgba(102,126,234,0.4);
+  border: 1px solid rgba(102,126,234,0.65);
+}
+
+body.light-mode .timerSection.shortBreak .sideCategory {
+  background: rgba(16,185,129,0.4);
+  border: 1px solid rgba(16,185,129,0.65);
+}
+
+body.light-mode .timerSection.longBreak .sideCategory {
+  background: rgba(245,158,11,0.4);
+  border: 1px solid rgba(245,158,11,0.65);
 }
 
 .sideCategoryHeader {
@@ -296,18 +572,23 @@
   gap: 0.5rem;
   font-size: 0.85rem;
   font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .colorDot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.6);
 }
 
 .sideProgress {
   margin-left: auto;
   font-size: 0.65rem;
-  opacity: 0.7;
+  opacity: 0.95;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 /* ================= TASK ================= */
@@ -320,26 +601,32 @@
   cursor: pointer;
   animation: fadeSlideIn 0.4s ease-out;
   position: relative;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  padding: 0.25rem 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.sideTask:hover {
+  transform: translateX(5px);
 }
 
 /* Анимация перечеркивания при завершении */
 .sideTask.completed {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .sideTask.completed::after {
   content: '';
   position: absolute;
   top: 50%;
-  left: 20px; /* Отступ от начала текста (иконка + отступ) */
+  left: 20px;
   width: 0;
-  height: 1.5px; /* Толще для лучшей видимости */
-  background: rgba(255, 255, 255, 0.9); /* Ярче */
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.95);
   transform: translateY(-50%);
   animation: strikeThrough 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   transform-origin: left center;
-  box-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Добавляем свечение */
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
 }
 
 /* Анимация появления галочки */
@@ -347,7 +634,7 @@
   width: 14px;
   height: 14px;
   border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,6 +643,8 @@
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  background: rgba(255,255,255,0.15);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .taskCheckbox::before {
@@ -365,15 +654,16 @@
   left: 0;
   width: 0%;
   height: 100%;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.95);
   transition: width 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
   z-index: 0;
 }
 
 .taskCheckbox.checked {
   color: rgba(0, 0, 0, 0.9);
-  border-color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.95);
   transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 
 .taskCheckbox.checked::before {
@@ -411,6 +701,74 @@
   font-weight: bold;
 }
 
+/* ================= КНОПКИ КОНТРОЛЛЕРА С ЦВЕТОМ РЕЖИМА (с размытием) ================= */
+
+/* Цветовые режимы для кнопок контроллера */
+.timerSection.pomodoro .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.45),
+    rgba(118,75,162,0.35)
+  );
+  border: 1px solid rgba(102,126,234,0.55);
+}
+
+.timerSection.shortBreak .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.45),
+    rgba(5,150,105,0.35)
+  );
+  border: 1px solid rgba(16,185,129,0.55);
+}
+
+.timerSection.longBreak .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.45),
+    rgba(217,119,6,0.35)
+  );
+  border: 1px solid rgba(245,158,11,0.55);
+}
+
+/* Более насыщенные цвета для светлой темы */
+body.light-mode .timerSection.pomodoro .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.55),
+    rgba(118,75,162,0.45)
+  );
+  border: 1px solid rgba(102,126,234,0.65);
+}
+
+body.light-mode .timerSection.shortBreak .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.55),
+    rgba(5,150,105,0.45)
+  );
+  border: 1px solid rgba(16,185,129,0.65);
+}
+
+body.light-mode .timerSection.longBreak .timerBtn {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.55),
+    rgba(217,119,6,0.45)
+  );
+  border: 1px solid rgba(245,158,11,0.65);
+}
+
+/* Цвет прогресса круга таймера */
+.timerSection.pomodoro .circleProgress {
+  stroke: #667eea;
+  filter: drop-shadow(0 0 12px rgba(102,126,234,0.6));
+}
+
+.timerSection.shortBreak .circleProgress {
+  stroke: #10b981;
+  filter: drop-shadow(0 0 12px rgba(16,185,129,0.6));
+}
+
+.timerSection.longBreak .circleProgress {
+  stroke: #f59e0b;
+  filter: drop-shadow(0 0 12px rgba(245,158,11,0.6));
+}
+
 /* ================= ANIMATIONS ================= */
 @keyframes fadeSlideIn {
   from {
@@ -430,11 +788,11 @@
     transform: translateY(-50%) scaleX(0.5);
   }
   50% {
-    opacity: 0.8;
+    opacity: 0.9;
     transform: translateY(-50%) scaleX(1.05);
   }
   100% {
-    width: calc(100% - 26px);
+    width: calc(100% - 20px);
     opacity: 1;
     transform: translateY(-50%) scaleX(1);
   }
@@ -465,5 +823,51 @@
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* ================= АДАПТИВНОСТЬ ================= */
+@media (max-width: 1200px) {
+  .timerLayout {
+    gap: 1.5rem;
+  }
+  
+  .sideDropZone {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .timerSection {
+    padding: 1.5rem;
+    min-height: 350px;
+  }
+  
+  .timerLayout {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .timerContent {
+    order: 1;
+  }
+  
+  .sideDropZone {
+    width: 100%;
+    min-height: auto;
+    order: 2;
+  }
+  
+  .timerModeSlider {
+    max-width: 300px;
+  }
+  
+  .timerCircle {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .timerValue {
+    font-size: 3.5rem;
   }
 }

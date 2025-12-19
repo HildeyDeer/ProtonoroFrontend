@@ -78,6 +78,7 @@ const Dashboard = () => {
     longBreakInterval: 4,
     notifications: true,
     sound: true,
+    backgroundImage: false,
     darkMode: true,
   });
 
@@ -208,42 +209,57 @@ const Dashboard = () => {
   };
 
   // Переключение темы
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-    
-    // Сохраняем настройку в timerSettings
-    setTimerSettings(prev => ({
-      ...prev,
-      darkMode
-    }));
-  }, [darkMode]);
+useEffect(() => {
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
+  } else {
+    document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+  }
+  
+  // Сохраняем настройку в timerSettings
+  setTimerSettings(prev => ({
+    ...prev,
+    darkMode
+  }));
+}, [darkMode]);
 
   // Загрузка настроек из localStorage
   useEffect(() => {
-    const savedSettings = localStorage.getItem('timerSettings');
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setTimerSettings(parsedSettings);
-        setDarkMode(parsedSettings.darkMode);
-        
-        // Применяем настройки времени
-        if (timerMode === 'pomodoro') {
-          setTime(parsedSettings.pomodoro * 60);
-        } else if (timerMode === 'shortBreak') {
-          setTime(parsedSettings.shortBreak * 60);
-        } else if (timerMode === 'longBreak') {
-          setTime(parsedSettings.longBreak * 60);
-        }
-      } catch (error) {
-        console.error('Error loading settings from localStorage:', error);
+  const savedSettings = localStorage.getItem('timerSettings');
+  if (savedSettings) {
+    try {
+      const parsedSettings = JSON.parse(savedSettings);
+      setTimerSettings(parsedSettings);
+      setDarkMode(parsedSettings.darkMode);
+      
+      // Применяем класс темы на body
+      if (parsedSettings.darkMode) {
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+      } else {
+        document.body.classList.add('light-mode');
+        document.body.classList.remove('dark-mode');
       }
+      
+      // Применяем настройки времени
+      if (timerMode === 'pomodoro') {
+        setTime(parsedSettings.pomodoro * 60);
+      } else if (timerMode === 'shortBreak') {
+        setTime(parsedSettings.shortBreak * 60);
+      } else if (timerMode === 'longBreak') {
+        setTime(parsedSettings.longBreak * 60);
+      }
+    } catch (error) {
+      console.error('Error loading settings from localStorage:', error);
     }
-  }, []);
+  } else {
+    // По умолчанию темная тема
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
+  }
+}, []);
 
   // Логика таймера
   useEffect(() => {
@@ -533,26 +549,35 @@ const Dashboard = () => {
 
   // ✅ ФУНКЦИЯ ДЛЯ СОХРАНЕНИЯ НАСТРОЕК
   const handleSaveSettings = (settings: any) => {
-    setTimerSettings(settings);
-    
-    // Применяем настройки к текущему таймеру
-    if (timerMode === 'pomodoro') {
-      setTime(settings.pomodoro * 60);
-    } else if (timerMode === 'shortBreak') {
-      setTime(settings.shortBreak * 60);
-    } else if (timerMode === 'longBreak') {
-      setTime(settings.longBreak * 60);
-    }
-    
-    // Применяем тему
-    setDarkMode(settings.darkMode);
-    
-    console.log('⚙️ Settings saved:', settings);
-    setIsSettingsModalOpen(false);
-    
-    // Сохраняем настройки в localStorage
-    localStorage.setItem('timerSettings', JSON.stringify(settings));
-  };
+  setTimerSettings(settings);
+  
+  // Применяем тему
+  setDarkMode(settings.darkMode);
+  
+  // Применяем класс темы на body
+  if (settings.darkMode) {
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
+  } else {
+    document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+  }
+  
+  // Применяем настройки к текущему таймеру
+  if (timerMode === 'pomodoro') {
+    setTime(settings.pomodoro * 60);
+  } else if (timerMode === 'shortBreak') {
+    setTime(settings.shortBreak * 60);
+  } else if (timerMode === 'longBreak') {
+    setTime(settings.longBreak * 60);
+  }
+  
+  console.log('⚙️ Settings saved:', settings);
+  setIsSettingsModalOpen(false);
+  
+  // Сохраняем настройки в localStorage
+  localStorage.setItem('timerSettings', JSON.stringify(settings));
+};
 
   // ✅ ФУНКЦИЯ ДЛЯ ЗАГРУЗКИ ПРОФИЛЯ (УПРОЩЕННАЯ)
   const loadUserProfile = async () => {
@@ -931,6 +956,7 @@ const Dashboard = () => {
 
         <main className="content">
             <TimerSection
+              backgroundImage={timerSettings.backgroundImage}
               time={time}
               totalTime={getTotalTimeForMode(timerMode)}
               timerState={timerState}

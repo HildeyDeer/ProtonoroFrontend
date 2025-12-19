@@ -1225,5 +1225,27 @@ body.dragging .category-popup {
   .dropped-categories-grid {
     grid-template-columns: 1fr;
   }
+
+  /* В App.css или index.css */
+:root {
+  --background-dark: #121212;
+  --background-light: #f5f5f5;
+  --text-dark: #ffffff;
+  --text-light: #333333;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: var(--background-dark);
+  color: var(--text-dark);
+}
+
+body.light-mode {
+  background-color: var(--background-light);
+  color: var(--text-light);
+}
   
 }

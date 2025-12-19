@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Clock, Coffee, Moon, Bell, Save, AlertCircle } from 'lucide-react';
+import { X, Clock, Coffee, Moon, Bell, Save, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import styles from './SettingsModal.module.css';
 
 interface TimerSettings {
@@ -12,6 +12,7 @@ interface TimerSettings {
   notifications: boolean;
   sound: boolean;
   darkMode: boolean;
+  backgroundImage: boolean; // Новая настройка - фон-картинка
 }
 
 interface SettingsModalProps {
@@ -43,7 +44,7 @@ const SettingsModal = ({
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [showNotificationWarning, setShowNotificationWarning] = useState(false);
 
-  // Настройки по умолчанию (звук и уведомления отключены)
+  // Настройки по умолчанию (звук и уведомления отключены, фон-картинка отключена)
   const defaultSettings: TimerSettings = {
     pomodoro: 25,
     shortBreak: 5,
@@ -51,9 +52,10 @@ const SettingsModal = ({
     autoStartBreaks: true,
     autoStartPomodoros: true,
     longBreakInterval: 4,
-    notifications: false, // Уведомления отключены по умолчанию
-    sound: false, // Звук отключен по умолчанию
+    notifications: false,
+    sound: false,
     darkMode: true,
+    backgroundImage: false, // По умолчанию выключено
   };
 
   const [settings, setSettings] = useState<TimerSettings>(defaultSettings);
@@ -269,6 +271,7 @@ const SettingsModal = ({
       notifications: 0,
       sound: 0,
       darkMode: 0,
+      backgroundImage: 0,
     };
     return minValues[key] || 0;
   };
@@ -284,6 +287,7 @@ const SettingsModal = ({
       notifications: 1,
       sound: 1,
       darkMode: 1,
+      backgroundImage: 1,
     };
     return maxValues[key] || 100;
   };
@@ -730,6 +734,35 @@ const SettingsModal = ({
               </div>
             </div>
           </div>
+          {/* Секция фонового изображения */}
+              <div className={styles.switchSetting}>
+                <div className={styles.switchLabel}>
+                  <span>Фон-картинка</span>
+                  <span className={styles.switchDescription}>
+                    Использовать картинку из папки Extra/Icons вместо градиентного фона
+                  </span>
+                </div>
+                <label className={styles.switch}>
+                  <input
+                    type="checkbox"
+                    checked={settings.backgroundImage}
+                    onChange={(e) => handleChange('backgroundImage', e.target.checked)}
+                  />
+                  <span className={styles.slider}></span>
+                </label>
+              </div>
+
+
+            {/* Подсказка для фона-картинки */}
+            {settings.backgroundImage && (
+              <div className={styles.backgroundHint}>
+                <ImageIcon size={16} />
+                <span>
+                  Используется картинка из: <code>src/Extra/Icons/</code>
+                </span>
+              </div>
+            )}
+          
 
           {/* Кнопки действий */}
           <div className={styles.modalFooter}>
@@ -762,6 +795,7 @@ const SettingsModal = ({
         </form>
       </div>
     </div>
+    
   );
 };
 

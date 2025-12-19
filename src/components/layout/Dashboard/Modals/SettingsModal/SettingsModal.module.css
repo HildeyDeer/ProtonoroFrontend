@@ -936,3 +936,46 @@ input:checked + .slider:before {
 .switch input:disabled:checked + .slider {
   background-color: rgba(59, 130, 246, 0.5);
 }
+
+/* Подсказка для фона-картинки */
+.backgroundHint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.backgroundHint svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.backgroundHint span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.backgroundHint code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.8em;
+  color: var(--text-primary);
+}
+
+/* Темная тема для подсказки */
+:global(.dark-mode) .backgroundHint {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+:global(.dark-mode) .backgroundHint code {
+  background: rgba(255, 255, 255, 0.05);
+}
