@@ -171,11 +171,11 @@ body.light-mode .timerSection.longBreak .timerModeSlider {
 }
 
 /* Parallax tilt */
-.timerModeSlider:hover {
+/* .timerModeSlider:hover {
   transform: perspective(800px) rotateX(2deg) rotateY(-2deg);
   transition: transform 0.4s ease;
   box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-}
+} */
 
 .sliderTrack {
   display: flex;
@@ -291,7 +291,7 @@ body.light-mode .timerSection.longBreak .sliderIndicator {
 }
 
 /* Liquid wave shimmer */
-.sliderIndicator::after {
+/* .sliderIndicator::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -303,7 +303,7 @@ body.light-mode .timerSection.longBreak .sliderIndicator {
   );
   opacity: 0.6;
   animation: liquidWave 6s infinite linear;
-}
+} */
 
 @keyframes liquidWave {
   0%   { transform: translateX(-10%) translateY(-5%); }
@@ -323,14 +323,117 @@ body.light-mode .timerSection.longBreak .sliderIndicator {
   position: relative;
   width: 280px;
   height: 280px;
-  overflow: hidden;
-  border-radius: 8px;
+  overflow: visible;
+  isolation: isolate;
+}
+
+/* Подложка под круг с эффектом блюра */
+.timerCircle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(55% + 80px); /* Больше чем сам круг */
+  height: calc(55% + 80px);
+  border-radius: 50%;
+  z-index: -1;
+  
+  /* Эффект стекла с блюром */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  
+  /* Анимация появления */
+  animation: glassAppear 0.6s ease-out;
+}
+
+/* Цвет подложки в зависимости от режима */
+.timerSection.pomodoro .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.39),
+    rgba(118, 75, 162, 0.1)
+  );
+  border-color: rgba(42, 76, 224, 0.25);
+}
+
+.timerSection.shortBreak .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.288),
+    rgba(5, 150, 105, 0.1)
+  );
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.timerSection.longBreak .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 159, 11, 0.308),
+    rgba(217, 119, 6, 0.1)
+  );
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+/* Для светлой темы - более светлая подложка */
+body.light-mode .timerCircle::before {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Цветовые режимы для светлой темы */
+body.light-mode .timerSection.pomodoro .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.25),
+    rgba(118, 75, 162, 0.2)
+  );
+  border-color: rgba(102, 126, 234, 0.35);
+}
+
+body.light-mode .timerSection.shortBreak .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.25),
+    rgba(5, 150, 105, 0.2)
+  );
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+body.light-mode .timerSection.longBreak .timerCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.25),
+    rgba(217, 119, 6, 0.2)
+  );
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+@keyframes glassAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
 }
 
 .circleSvg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
+  overflow: visible;
+  position: relative;
+  z-index: 1; /* Над подложкой */
 }
 
 .circleBg {
@@ -351,6 +454,7 @@ body.light-mode .circleBg {
   stroke-linecap: round;
   filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
   transition: stroke-dashoffset 1s linear;
+  paint-order: stroke;
 }
 
 .timerDisplay {
@@ -360,6 +464,7 @@ body.light-mode .circleBg {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 2; /* Над всеми элементами круга */
 }
 
 .timerValue {
@@ -374,6 +479,25 @@ body.light-mode .circleBg {
   opacity: 0.95;
   text-shadow: 0 1px 4px rgba(0,0,0,0.3);
   font-weight: 500;
+}
+
+/* Цвет прогресса круга таймера */
+.timerSection.pomodoro .circleProgress {
+  stroke: #8295e9;
+  filter: drop-shadow(0 0 15px rgba(130, 149, 233, 0.8));
+  stroke-linejoin: round;
+}
+
+.timerSection.shortBreak .circleProgress {
+  stroke: #10b981;
+  filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));
+  stroke-linejoin: round;
+}
+
+.timerSection.longBreak .circleProgress {
+  stroke: #f59e0b;
+  filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.8));
+  stroke-linejoin: round;
 }
 
 /* ================= CONTROLS ================= */
@@ -755,20 +879,25 @@ body.light-mode .timerSection.longBreak .timerBtn {
 
 /* Цвет прогресса круга таймера */
 .timerSection.pomodoro .circleProgress {
-  stroke: #667eea;
+  stroke: #8295e9;
   filter: drop-shadow(0 0 12px rgba(102,126,234,0.6));
+  /* Добавляем дополнительные эффекты */
+  stroke-linejoin: round;
 }
 
 .timerSection.shortBreak .circleProgress {
   stroke: #10b981;
   filter: drop-shadow(0 0 12px rgba(16,185,129,0.6));
+  stroke-linejoin: round;
 }
+
+
 
 .timerSection.longBreak .circleProgress {
   stroke: #f59e0b;
   filter: drop-shadow(0 0 12px rgba(245,158,11,0.6));
+  stroke-linejoin: round;
 }
-
 /* ================= ANIMATIONS ================= */
 @keyframes fadeSlideIn {
   from {
@@ -826,6 +955,191 @@ body.light-mode .timerSection.longBreak .timerBtn {
   }
 }
 
+/* ================= FULLSCREEN BUTTON ================= */
+.fullscreenButton {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.6),
+    0 8px 28px rgba(0,0,0,0.35);
+  color: white;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: buttonAppear 0.45s ease-out;
+}
+
+.fullscreenButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255,255,255,0.65),
+    transparent 70%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.fullscreenButton:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.7),
+    0 14px 36px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(255,255,255,0.12);
+}
+
+.fullscreenButton:active {
+  transform: scale(0.94);
+}
+
+/* ===== Цвет под режим ===== */
+.timerSection.pomodoro .fullscreenButton {
+  background: linear-gradient(135deg,
+    rgba(102,126,234,0.45),
+    rgba(118,75,162,0.35)
+  );
+}
+
+.timerSection.shortBreak .fullscreenButton {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.45),
+    rgba(5,150,105,0.35)
+  );
+}
+
+.timerSection.longBreak .fullscreenButton {
+  background: linear-gradient(135deg,
+    rgba(245,158,11,0.45),
+    rgba(217,119,6,0.35)
+  );
+}
+
+/* Анимация для светлой темы в полноэкранном режиме */
+body.light-mode .fullscreenButton {
+  background: rgba(255,255,255,0.45);
+  border: 1px solid rgba(0,0,0,0.15);
+  color: rgba(0,0,0,0.85);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.8),
+    0 8px 24px rgba(0,0,0,0.2);
+}
+
+body.light-mode .fullscreenButton:hover {
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.9),
+    0 14px 30px rgba(0,0,0,0.25),
+    0 0 0 2px rgba(0,0,0,0.08);
+}
+
+@keyframes buttonAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= FULLSCREEN MODE STYLES ================= */
+.timerSection.fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  padding: 3rem;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Увеличение подложки в полноэкранном режиме */
+.timerSection.fullscreen .timerCircle::before {
+  width: calc(54% + 94px); /* Увеличиваем на 20px */
+  height: calc(54% + 94px);
+  backdrop-filter: blur(15px) saturate(200%); /* Усиливаем блюр */
+  -webkit-backdrop-filter: blur(15px) saturate(200%);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 0 80px rgba(255, 255, 255, 0.1); /* Добавляем свечение */
+}
+
+.timerSection.fullscreen .timerLayout {
+  max-width: 1400px;
+  gap: 3rem;
+  scale: 1.1;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timerSection.fullscreen .timerContent {
+  max-width: 800px;
+}
+
+.timerSection.fullscreen .timerCircle {
+  width: 320px;
+  height: 320px;
+}
+
+.timerSection.fullscreen .timerValue {
+  font-size: 5rem;
+}
+
+.timerSection.fullscreen .sideDropZone {
+  width: 280px;
+  min-height: 400px;
+  padding: 1.75rem;
+}
+
+.timerSection.fullscreen .timerModeSlider {
+  max-width: 400px;
+  padding: 12px 16px;
+}
+
+.timerSection.fullscreen .sliderSegment {
+  font-size: 0.95rem;
+  padding: 12px 0;
+}
+
+.timerSection.fullscreen .timerControls {
+  gap: 1.5rem;
+}
+
+.timerSection.fullscreen .timerBtn {
+  padding: 1.1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+/* Плавная анимация для выхода из полноэкранного режима */
+.timerSection:not(.fullscreen) .timerLayout {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Поддержка браузеров без backdrop-filter */
+@supports not (backdrop-filter: blur(12px)) {
+  .fullscreenButton {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  
+  body.light-mode .fullscreenButton {
+    background: rgba(255, 255, 255, 0.8);
+  }
+}
+
 /* ================= АДАПТИВНОСТЬ ================= */
 @media (max-width: 1200px) {
   .timerLayout {
@@ -834,6 +1148,15 @@ body.light-mode .timerSection.longBreak .timerBtn {
   
   .sideDropZone {
     width: 200px;
+  }
+  
+  .timerSection.fullscreen .timerLayout {
+    scale: 1;
+    gap: 2rem;
+  }
+  
+  .timerSection.fullscreen .sideDropZone {
+    width: 240px;
   }
 }
 
@@ -869,5 +1192,42 @@ body.light-mode .timerSection.longBreak .timerBtn {
   
   .timerValue {
     font-size: 3.5rem;
+  }
+  
+  /* Мобильные стили для кнопки */
+  .fullscreenButton {
+    bottom: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+  }
+  
+  /* Полноэкранный режим на мобильных */
+  .timerSection.fullscreen {
+    padding: 2rem 1.5rem;
+  }
+  
+  .timerSection.fullscreen .timerLayout {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  
+  .timerSection.fullscreen .timerContent {
+    order: 1;
+  }
+  
+  .timerSection.fullscreen .sideDropZone {
+    width: 100%;
+    min-height: auto;
+    order: 2;
+  }
+  
+  .timerSection.fullscreen .timerCircle {
+    width: 280px;
+    height: 280px;
+  }
+  
+  .timerSection.fullscreen .timerValue {
+    font-size: 4rem;
   }
 }

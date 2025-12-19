@@ -1,5 +1,5 @@
-import { Play, Pause, RotateCcw, FolderOpen, ListTodo } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Play, Pause, RotateCcw, FolderOpen, ListTodo, Maximize2, Minimize2 } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './TimerSection.module.css';
 import type { TimerMode, TimerState, DroppedCategory } from '../../../../../types';
 
@@ -19,7 +19,7 @@ interface Props {
   onPause: () => void;
   onReset: () => void;
   formatTime: (s: number) => string;
-  backgroundImage: boolean; // Новая пропса для фона-картинки
+  backgroundImage: boolean;
 }
 
 const TimerSection = ({
@@ -35,16 +35,59 @@ const TimerSection = ({
   onReset,
   onModeChange,
   formatTime,
-  backgroundImage = false // Значение по умолчанию
+  backgroundImage = false
 }: Props) => {
 
   const [progress, setProgress] = useState(CIRCUMFERENCE);
   const [animatedTasks, setAnimatedTasks] = useState<Set<number>>(new Set());
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const timerSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!totalTime) return;
     setProgress(CIRCUMFERENCE * (1 - time / totalTime));
   }, [time, totalTime]);
+
+  // Обработчики полноэкранного режима
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!timerSectionRef.current) return;
+
+    if (!isFullscreen) {
+      // Входим в полноэкранный режим
+      if (timerSectionRef.current.requestFullscreen) {
+        timerSectionRef.current.requestFullscreen();
+      } else if ((timerSectionRef.current as any).webkitRequestFullscreen) {
+        (timerSectionRef.current as any).webkitRequestFullscreen();
+      } else if ((timerSectionRef.current as any).msRequestFullscreen) {
+        (timerSectionRef.current as any).msRequestFullscreen();
+      }
+    } else {
+      // Выходим из полноэкранного режима
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+    }
+  };
 
   const recentCategories = droppedCategories.slice(-2);
 
@@ -58,13 +101,9 @@ const TimerSection = ({
   };
 
   const handleTaskToggle = (categoryId: number, taskId: number) => {
-    // Добавляем задачу в анимированные
     setAnimatedTasks(prev => new Set([...prev, taskId]));
-    
-    // Вызываем обработчик из DropZone
     onToggleTaskCompletion(categoryId, taskId);
     
-    // Через 1 секунду удаляем из анимированных (после завершения анимации)
     setTimeout(() => {
       setAnimatedTasks(prev => {
         const newSet = new Set(prev);
@@ -74,23 +113,32 @@ const TimerSection = ({
     }, 1000);
   };
 
-  // Получаем все задачи для отображения
   const allTasks = recentCategories.flatMap(c => 
     c.tasks.map(task => ({ ...task, categoryId: c.id }))
   );
 
-  // Определяем класс для фона
   const getTimerSectionClass = () => {
-    const baseClass = `${styles.timerSection} ${styles[mode]}`;
+    const baseClass = `${styles.timerSection} ${styles[mode]} ${isFullscreen ? styles.fullscreen : ''}`;
     return backgroundImage 
       ? `${baseClass} ${styles.withBackgroundImage}`
       : baseClass;
   };
 
   return (
-    <div className={getTimerSectionClass()}>
-      <div className={styles.timerLayout}>
+    <div 
+      className={getTimerSectionClass()} 
+      ref={timerSectionRef}
+    >
+      {/* Кнопка полноэкранного режима */}
+      <button 
+        className={styles.fullscreenButton}
+        onClick={toggleFullscreen}
+        aria-label={isFullscreen ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}
+      >
+        {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+      </button>
 
+      <div className={styles.timerLayout}>
         {/* LEFT SIDE - CATEGORIES */}
         <div className={styles.sideDropZone}>
           <div className={styles.sideTitle}>КАТЕГОРИИ</div>
@@ -137,7 +185,6 @@ const TimerSection = ({
 
         {/* CENTER */}
         <div className={styles.timerContent}>
-
           {/* MODE SLIDER - над таймером */}
           <div className={styles.timerModeSlider}>
             <div
@@ -208,7 +255,6 @@ const TimerSection = ({
               <RotateCcw />
             </button>
           </div>
-
         </div>
 
         {/* RIGHT SIDE - TASKS */}
@@ -242,7 +288,6 @@ const TimerSection = ({
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
