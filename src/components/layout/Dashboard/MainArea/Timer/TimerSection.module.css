@@ -1,4 +1,4 @@
-/* ===== ОСНОВНОЙ КОНТЕЙНЕР ===== */
+/* ================= ROOT ================= */
 .timerSection {
   border-radius: 1.75rem;
   padding: 2.25rem;
@@ -10,11 +10,10 @@
 
   backdrop-filter: blur(32px) saturate(170%);
   -webkit-backdrop-filter: blur(32px) saturate(170%);
-
   transition: background 0.6s ease;
 }
 
-/* ===== GLASS-ГРАДИЕНТЫ ===== */
+/* ===== MODES ===== */
 .timerSection.pomodoro {
   background: linear-gradient(135deg,
     rgba(102,126,234,0.55),
@@ -36,6 +35,14 @@
   );
 }
 
+/* ================= LAYOUT ================= */
+.timerLayout {
+  display: flex;
+  gap: 2.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
 .timerContent {
   display: flex;
   flex-direction: column;
@@ -46,17 +53,17 @@
 }
 
 /* ======================================================
-   SLIDER (увеличенная подложка + glass)
+   SLIDER - расположен над таймером
    ====================================================== */
-
 .timerModeSlider {
   width: 100%;
-  max-width: 340px;          /* ⬅ шире */
-  padding: 10px 14px;        /* ⬅ больше воздуха по бокам */
+  max-width: 340px;
+  padding: 10px 14px;
   background: rgba(255,255,255,0.16);
   border-radius: 60px;
   position: relative;
   overflow: hidden;
+  margin-bottom: 1.5rem; /* Отступ от таймера */
 
   backdrop-filter: blur(14px) saturate(160%);
 }
@@ -93,7 +100,7 @@
 .sliderIndicator {
   position: absolute;
   top: 6px;
-  left: 14px; /* ⬅ чтобы не упирался */
+  left: 14px;
   width: calc((100% - 28px) / 3);
   height: calc(100% - 12px);
 
@@ -141,25 +148,29 @@
   100% { transform: translateX(-10%) translateY(-5%); }
 }
 
-/* ======================================================
-   TIMER CIRCLE
-   ====================================================== */
+/* ================= TIMER CIRCLE ================= */
+.timerCircleContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
 
 .timerCircle {
   position: relative;
   width: 280px;
   height: 280px;
-  overflow: visible;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 .circleSvg {
   width: 100%;
   height: 100%;
-  overflow: visible;
   transform: rotate(-90deg);
 }
 
-.circleBackground {
+.circleBg {
   fill: none;
   stroke: rgba(255,255,255,0.18);
   stroke-width: 8;
@@ -170,14 +181,8 @@
   stroke: white;
   stroke-width: 8;
   stroke-linecap: round;
-  transition: stroke-dashoffset 1s linear;
   filter: drop-shadow(0 0 7px rgba(255,255,255,0.45));
-}
-
-/* Motion blur on mode change */
-.timerSection.shortBreak .circleProgress,
-.timerSection.longBreak .circleProgress {
-  filter: drop-shadow(0 0 9px rgba(255,255,255,0.55));
+  transition: stroke-dashoffset 1s linear;
 }
 
 .timerDisplay {
@@ -185,8 +190,8 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
 .timerValue {
@@ -195,15 +200,12 @@
 }
 
 .timerLabel {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   letter-spacing: 0.15em;
   opacity: 0.9;
 }
 
-/* ======================================================
-   CONTROLS
-   ====================================================== */
-
+/* ================= CONTROLS ================= */
 .timerControls {
   display: flex;
   gap: 1rem;
@@ -225,4 +227,243 @@
 @keyframes pulseGlow {
   0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
   50% { box-shadow: 0 0 0 14px rgba(255,255,255,0); }
+}
+
+/* ================= SIDE DROP ================= */
+.sideDropZone {
+  width: 220px;
+  min-height: 300px;
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.28);
+
+  backdrop-filter: blur(20px) saturate(160%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.35),
+    0 12px 30px rgba(0,0,0,0.25);
+}
+
+.sideTitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* ================= EMPTY STATE ================= */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  opacity: 0.7;
+  animation: fadeSlideIn 0.45s ease-out;
+}
+
+.emptyStateIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.emptyStateText {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  max-width: 180px;
+}
+
+/* ================= CATEGORY ================= */
+.sideCategory {
+  padding: 0.75rem;
+  border-radius: 1rem;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.25);
+
+  animation: fadeSlideIn 0.45s ease-out;
+}
+
+.sideCategoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.sideProgress {
+  margin-left: auto;
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+/* ================= TASK ================= */
+.sideTask {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  animation: fadeSlideIn 0.4s ease-out;
+  position: relative;
+  transition: opacity 0.3s ease;
+}
+
+/* Анимация перечеркивания при завершении */
+.sideTask.completed {
+  opacity: 0.6;
+}
+
+.sideTask.completed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20px; /* Отступ от начала текста (иконка + отступ) */
+  width: 0;
+  height: 1.5px; /* Толще для лучшей видимости */
+  background: rgba(255, 255, 255, 0.9); /* Ярче */
+  transform: translateY(-50%);
+  animation: strikeThrough 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  transform-origin: left center;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Добавляем свечение */
+}
+
+/* Анимация появления галочки */
+.taskCheckbox {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.taskCheckbox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: rgba(255,255,255,0.9);
+  transition: width 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  z-index: 0;
+}
+
+.taskCheckbox.checked {
+  color: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255,255,255,0.9);
+  transform: scale(1.05);
+}
+
+.taskCheckbox.checked::before {
+  width: 100%;
+}
+
+/* Правильная галочка без поворота */
+.taskCheckbox.checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  animation: checkmarkAppear 0.3s 0.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  z-index: 1;
+}
+
+/* Альтернативный вариант: использовать span внутри чекбокса */
+.taskCheckbox span {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.taskCheckbox.checked span {
+  opacity: 1;
+  transform: scale(1);
+  animation: checkmarkAppearSimple 0.3s 0.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  position: relative;
+  z-index: 1;
+  color: rgba(0, 0, 0, 0.9);
+  font-weight: bold;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes strikeThrough {
+  0% {
+    width: 0;
+    opacity: 0;
+    transform: translateY(-50%) scaleX(0.5);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-50%) scaleX(1.05);
+  }
+  100% {
+    width: calc(100% - 26px);
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+@keyframes checkmarkAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes checkmarkAppearSimple {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

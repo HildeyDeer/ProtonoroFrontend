@@ -152,6 +152,19 @@ const Dashboard = () => {
     },
   ]);
 
+  const toggleTask = (taskId: number) => {
+  setDroppedCategories(prev =>
+    prev.map(cat => ({
+      ...cat,
+      tasks: cat.tasks.map(task =>
+        task.id === taskId
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    }))
+  );
+};
+
   // Функция для расчета общего времени режима
   const getTotalTimeForMode = (mode: TimerMode): number => {
     switch(mode) {
@@ -917,19 +930,23 @@ const Dashboard = () => {
         />
 
         <main className="content">
-          <TimerSection
-            time={time}
-            timerState={timerState}
-            mode={timerMode}
-            completedPomodoros={completedPomodoros}
-            onStart={handleStart}
-            onPause={handlePause}
-            onReset={handleReset}
-            onModeChange={handleModeChange}
-            formatTime={formatTime}
-            totalTime={getTotalTimeForMode(timerMode)}
-          />
-
+            <TimerSection
+              time={time}
+              totalTime={getTotalTimeForMode(timerMode)}
+              timerState={timerState}
+              mode={timerMode}
+              completedPomodoros={completedPomodoros}
+              droppedCategories={droppedCategories}
+              //onToggleTask={toggleTask}
+              onToggleTaskCompletion={toggleTaskCompletion}
+              //onModeChange={setTimerMode}
+              onStart={handleStart}
+              onPause={handlePause}
+              onReset={handleReset}
+              onModeChange={handleModeChange}
+              formatTime={formatTime}
+              //totalTime={getTotalTimeForMode(timerMode)}
+            />
           <DropZone 
             droppedCategories={droppedCategories}
             searchQuery={searchQuery}
