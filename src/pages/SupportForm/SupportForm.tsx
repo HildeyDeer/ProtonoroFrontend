@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../api/auth';
-import styles from './HelpForm.module.css';
+import styles from './SupportForm.module.css';
 
 interface Message {
   id: number;

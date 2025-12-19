@@ -135,9 +135,9 @@ const ProfilePopup = ({
       case 'login':
         window.location.href = '/login';
         break;
-      case 'help':
+      case 'support':
         // Навигация на страницу помощи
-        navigate('/help');
+        navigate('/support');
         break;
       default:
         onProfileAction(action);
@@ -212,10 +212,10 @@ const ProfilePopup = ({
             
             <button 
               className={styles.menuItem}
-              onClick={() => handleMenuAction('help')}
+              onClick={() => handleMenuAction('support')}
             >
               <HelpCircle size={16} />
-              <span>Помощь</span>
+              <span>Поддержка</span>
             </button>
             
             <div className={styles.menuDivider} />

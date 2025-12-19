@@ -480,7 +480,7 @@
   flex: 1;
   overflow-y: auto;
   padding-right: 0.5rem;
-  max-height: 450px; /* Увеличиваем высоту списка FAQ */
+  max-height: 680px;/* Увеличиваем высоту списка FAQ */
 }
 
 .searchBar {
@@ -665,6 +665,7 @@
   flex-direction: column;
   gap: 1.5rem;
   flex: 1;
+  
 }
 
 .formGrid {
@@ -732,7 +733,7 @@
   color: var(--text-primary);
   transition: all 0.2s;
   resize: vertical;
-  min-height: 150px; /* Увеличили с 120px до 150px */
+  max-height: 600px; /* Увеличиваем высоту контактной формы */
   font-family: inherit;
 }
 .formTextarea:focus {
