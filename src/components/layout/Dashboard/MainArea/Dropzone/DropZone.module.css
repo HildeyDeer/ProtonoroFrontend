@@ -85,18 +85,17 @@
   position: relative;
   z-index: 1;
   padding: 2rem;
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+
+
+
+
   transition: all 0.3s ease;
 }
 
 .dropZone.dragOver .dropPlaceholder {
   transform: scale(1.05);
-  background: rgba(102, 126, 234, 0.1);
-  border-color: rgba(102, 126, 234, 0.3);
+  /* background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.3); */
 }
 
 .dropIcon {
