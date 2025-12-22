@@ -2,7 +2,7 @@ import { Calendar, Target, Search, Plus, Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../../api/auth';
 import ProfilePopup from '../Modals/Header/ProfilePopup/ProfilePopup';
-import CalendarPopup from '../Modals/Header/CalendarPopup/CalendarPopup'; // Импорт нового компонента
+import CalendarPopup from '../Modals/Header/CalendarPopup/CalendarPopup';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -23,7 +23,6 @@ interface HeaderProps {
   };
 }
 
-// Интерфейс для данных профиля
 interface ProfileData {
   name: string;
   email: string;
@@ -184,6 +183,12 @@ const Header = ({
     setShowCalendarPopup(true);
   };
 
+  // Обработчик поиска
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Search input changed:', e.target.value); // Для отладки
+    onSearchChange(e.target.value);
+  };
+
   const logoClass = clickCount > 0 ? `${styles.logo} ${styles.logoPulse}` : styles.logo;
 
   return (
@@ -217,7 +222,13 @@ const Header = ({
               type="text" 
               placeholder="Поиск задачи..." 
               value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={handleSearchChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  console.log('Search submitted:', searchQuery);
+                  // Здесь можно добавить дополнительную логику поиска
+                }
+              }}
             />
           </div>
           
